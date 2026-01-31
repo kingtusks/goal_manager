@@ -52,3 +52,5 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
         db.commit()
         return {"id of goal deleted": id}
     raise HTTPException(status_code=404, detail="No goals found with id: {id}")
+
+

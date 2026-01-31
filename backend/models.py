@@ -32,12 +32,23 @@ class GoalsTable(Base):
     goal = Column(String)
     date = Column(DateTime(timezone=True), server_default=func.now())
 
-
-'''
 class TasksPydantic(BaseModel):
+    userid: int
+    goal: str
+    task_history: str
+    duration: int
 
 class TasksTable(Base):
+    __tablename__ = "tasks"
 
+    id = Column(Integer, primary_key=True, index=True)
+    userid = Column(Integer, index=True) #needs to map to the userid
+    goal = Column(String) #needs to map to a goal in GoalsTable
+    task_history = Column(String) #(placeholder) use json maybe
+    last_message = Column(DateTime(timezone=True), server_default=func.now())
+    duration = Column(Integer) #(placeholder) need a scale for this
+
+'''
 class AgentOutputsPydantic(BaseModel):
 
 class AgentOutputsTable(Base):
