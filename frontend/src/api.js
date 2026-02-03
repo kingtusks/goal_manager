@@ -1,27 +1,50 @@
 const API_URL = 'http://localhost:8000';
 
-export const fetchGoals = () => { //r
-  return fetch(`${API_URL}/goals`)
-    .then(res => res.json());
+export const fetchGoals = async () => {
+  const response = await fetch(`${API_URL}/goals`);
+  return response.json();
 };
 
-export const createGoal = (goalText) => { //c
-    //2 params for fetch cus one is only R while this is C (as seen w post method)
-  return fetch(`${API_URL}/creategoal`, {
+export const createGoal = async (goal) => {
+  const response = await fetch(`${API_URL}/creategoal`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      userid: 1,
-      goal: goalText,
-      date: new Date().toISOString()
-    })
-  }).then(res => res.json());
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userid: 1, goal, date: new Date() })
+  });
+  return response.json();
 };
 
-export const deleteGoal = (id) => { //d
-  return fetch(`${API_URL}/deletegoal?id=${id}`, {
-    method: 'DELETE',
-  }).then(res => res.json());
+export const deleteGoal = async (id) => {
+  const response = await fetch(`${API_URL}/deletegoal?id=${id}`, {
+    method: 'DELETE'
+  });
+  return response.json();
+};
+
+// Agent functions
+export const createPlan = async (goal) => {
+  const response = await fetch(`${API_URL}/agent/plan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ goal })
+  });
+  return response.json();
+};
+
+export const executePlan = async (plan) => {
+  const response = await fetch(`${API_URL}/agent/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan })
+  });
+  return response.json();
+};
+
+export const reflectOnResult = async (result) => {
+  const response = await fetch(`${API_URL}/agent/reflect`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ result })
+  });
+  return response.json();
 };

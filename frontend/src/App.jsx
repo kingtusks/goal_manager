@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { fetchGoals, createGoal, deleteGoal } from './api';
+import { fetchGoals, createGoal, deleteGoal, createPlan, executePlan, reflectOnResult } from './api';
 import './app.css';
+
 
 function App() {
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState('');
+  const [agentResult, setAgentResult] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchGoals()
@@ -13,12 +16,12 @@ function App() {
   }, []);
 
   const addGoal = () => {
-    createGoal(newGoal) //sends the goal to backend (logic in .js)
+    createGoal(newGoal)
       .then(() => {
-        setNewGoal(''); //clears the input
-        return fetchGoals(); //fetches the goals again (to include new one)
+        setNewGoal('');
+        return fetchGoals();
       })
-      .then(data => setGoals(data)) //updates the list
+      .then(data => setGoals(data))
       .catch(error => console.error('Error:', error));
   };
 
@@ -29,6 +32,36 @@ function App() {
     .catch(error => console.error('Error:', error));
   };
 
+  // Agent workflow
+  const runAgents = async (goalText) => {
+    setLoading(true);
+    setAgentResult('');
+    
+    try {
+      // Step 1: Planner
+      setAgentResult('Planning...');
+      const planResult = await createPlan(goalText);
+      console.log('Plan:', planResult);
+      
+      // Step 2: Executor
+      setAgentResult('Executing plan...');
+      const executeResult = await executePlan(planResult.result);
+      console.log('Execution:', executeResult);
+      
+      // Step 3: Reflector
+      setAgentResult('Reflecting...');
+      const reflection = await reflectOnResult(executeResult.result);
+      console.log('Reflection:', reflection);
+      
+      setAgentResult(`Done! Reflection: ${reflection.result}`);
+    } catch (error) {
+      console.error('Agent error:', error);
+      setAgentResult(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className='container'>
       <h1>My Goals</h1>
@@ -36,7 +69,7 @@ function App() {
       <div>
         <input 
           type="text"
-          value={newGoal} //goal you put in
+          value={newGoal}
           onChange={(e) => setNewGoal(e.target.value)}
           placeholder="Enter a goal"
           className='input'
@@ -47,16 +80,27 @@ function App() {
       </div>
 
       <div>
-        {goals
+        {goals.length > 0 && goals
         .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .map((goal) => { //should be a good example of map
+        .map((goal) => {
           return (
           <div key={goal.id} className='goalContainer'>
             <h3>{goal.goal}</h3>
+            <button onClick={() => runAgents(goal.goal)} disabled={loading}>
+              Run Agents
+            </button>
             <button onClick={() => handleDelete(goal.id)}>Delete</button>
           </div>
-        )})}
+          )
+        })}
       </div>
+
+      {agentResult && (
+        <div className='agentResult'>
+          <h3>Agent Status:</h3>
+          <p>{agentResult}</p>
+        </div>
+      )}
 
     </div>
   );

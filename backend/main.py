@@ -1,7 +1,11 @@
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from database import sessionDB, engine
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from agents.executor import executePlan
+from agents.planner import makePlan
+from agents.reflector import reflectPlan
 import models
 
 app = FastAPI()
@@ -23,6 +27,15 @@ def get_db():
     finally:
         db.close()
 
+class AgentRequest(BaseModel):
+    plan: str
+
+class PlannerRequest(BaseModel):
+    goal: str
+
+class ReflectorRequest(BaseModel):
+    result: str  
+
 @app.get("/") #home (placeholder)
 async def root():
     return {"ok": True}
@@ -30,9 +43,7 @@ async def root():
 @app.get("/goals") #r
 async def get_all_goals(db: Session = Depends(get_db)):
     db_goals = db.query(models.GoalsTable).all()
-    if db_goals:
-        return db_goals
-    raise HTTPException(status_code=404, detail="No Goals Found")
+    return db_goals 
 
 @app.get("/goal/{uid}") #r
 async def get_goals_from_userid(userid: int, db: Session = Depends(get_db)):
@@ -63,4 +74,26 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
         return {"id of goal deleted": id}
     raise HTTPException(status_code=404, detail="No goals found with id: {id}")
 
+@app.post("/agent/execute")
+async def execute_plan(request: AgentRequest):
+    try:
+        result = executePlan(request.plan)
+        return {"result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/agent/plan")
+async def create_plan(request: PlannerRequest):
+    try:
+        result = makePlan(request.goal)
+        return {"result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/agent/reflect")
+async def reflect_on_result(request: ReflectorRequest):
+    try:
+        result = reflectPlan(request.result)
+        return {"result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
