@@ -19,3 +19,9 @@ export const createGoal = (goalText) => { //c
     })
   }).then(res => res.json());
 };
+
+export const deleteGoal = (id) => { //d
+  return fetch(`${API_URL}/deletegoal?id=${id}`, {
+    method: 'DELETE',
+  }).then(res => res.json());
+};

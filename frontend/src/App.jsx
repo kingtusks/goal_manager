@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchGoals, createGoal } from './api';
+import { fetchGoals, createGoal, deleteGoal } from './api';
 
 function App() {
   const [goals, setGoals] = useState([]);
@@ -21,6 +21,13 @@ function App() {
       .catch(error => console.error('Error:', error));
   };
 
+  const handleDelete = (id) => {
+    deleteGoal(id)
+    .then(() => fetchGoals())
+    .then(data => setGoals(data))
+    .catch(error => console.error('Error:', error));
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>My Goals</h1>
@@ -38,7 +45,20 @@ function App() {
         </button>
       </div>
 
-      <pre>{JSON.stringify(goals, null, 2)}</pre>
+      <div>
+        {goals
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .map((goal) => { //should be a good example of map
+          return (
+          <div key={goal.id}>
+            <h3>{goal.goal}</h3>
+            <p>{goal.userid}</p>
+            <p>{goal.date}</p>
+            <button onClick={() => handleDelete(goal.id)}>Delete</button>
+          </div>
+        )})}
+      </div>
+
     </div>
   );
 }
