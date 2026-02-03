@@ -32,27 +32,23 @@ function App() {
     .catch(error => console.error('Error:', error));
   };
 
-  // Agent workflow
   const runAgents = async (goalText) => {
     setLoading(true);
     setAgentResult('');
     
     try {
-      // Step 1: Planner
       setAgentResult('Planning...');
       const planResult = await createPlan(goalText);
       console.log('Plan:', planResult);
       
-      // Step 2: Executor
       setAgentResult('Executing plan...');
       const executeResult = await executePlan(planResult.result);
       console.log('Execution:', executeResult);
       
-      // Step 3: Reflector
       setAgentResult('Reflecting...');
       const reflection = await reflectOnResult(executeResult.result);
       console.log('Reflection:', reflection);
-      
+      //change things in here later for agent io shit
       setAgentResult(`Done! Reflection: ${reflection.result}`);
     } catch (error) {
       console.error('Agent error:', error);

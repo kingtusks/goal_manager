@@ -77,7 +77,7 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
 @app.post("/agent/execute")
 async def execute_plan(request: AgentRequest):
     try:
-        result = executePlan(request.plan)
+        result = await executePlan(request.plan)
         return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -85,7 +85,7 @@ async def execute_plan(request: AgentRequest):
 @app.post("/agent/plan")
 async def create_plan(request: PlannerRequest):
     try:
-        result = makePlan(request.goal)
+        result = await makePlan(request.goal)
         return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -93,7 +93,7 @@ async def create_plan(request: PlannerRequest):
 @app.post("/agent/reflect")
 async def reflect_on_result(request: ReflectorRequest):
     try:
-        result = reflectPlan(request.result)
+        result = await reflectPlan(request.result)
         return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
