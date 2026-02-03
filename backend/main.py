@@ -48,13 +48,13 @@ async def get_goals_from_id(id: int, db: Session = Depends(get_db)):
         return db_goal
     raise HTTPException(status_code=404, detail="No goals found with id: {id}")
 
-@app.post("/goal") #c
+@app.post("/creategoal") #c
 async def make_goal(goal: models.GoalsPydantic, db: Session = Depends(get_db)):
     db.add(models.GoalsTable(**goal.model_dump()))
     db.commit()
     return {"done": "i think"}
 
-@app.delete("/goal") #d
+@app.delete("/deletegoal") #d
 async def delete_goal(id: int, db: Session = Depends(get_db)):
     db_goal = db.query(models.GoalsTable).filter(models.GoalsTable.id == id).first()
     if db_goal:

@@ -1,22 +1,46 @@
 import { useState, useEffect } from 'react';
+import { fetchGoals, createGoal } from './api';
 
-export default function App() {
+function App() {
   const [goals, setGoals] = useState([]);
+  const [newGoal, setNewGoal] = useState('');
+
   useEffect(() => {
-    fetch('http://localhost:8000/goals') //get all goals
-      .then(res => res.json()) //converts to json
-      .then(data => {
-        console.log(data); //prints it then
-        setGoals(data); //puts the data into goals
-      })
-      .catch(error => console.error('Error:', error)); //error catching
+    fetchGoals()
+      .then(data => setGoals(data))
+      .catch(error => console.error('Error:', error));
   }, []);
 
+  const addGoal = () => {
+    createGoal(newGoal) //sends the goal to backend (logic in .js)
+      .then(() => {
+        setNewGoal(''); //clears the input
+        return fetchGoals(); //fetches the goals again (to include new one)
+      })
+      .then(data => setGoals(data)) //updates the list
+      .catch(error => console.error('Error:', error));
+  };
+
   return (
-    //stringifies goals and yea seems pretty easy
     <div style={{ padding: '20px' }}>
       <h1>My Goals</h1>
-      <pre>{JSON.stringify(goals, null, 2)}</pre> 
+      
+      <div>
+        <input 
+          type="text"
+          value={newGoal} //goal you put in
+          onChange={(e) => setNewGoal(e.target.value)}
+          placeholder="Enter a goal"
+          style={{ padding: '10px', width: '300px' }}
+        />
+        <button onClick={addGoal} style={{ padding: '10px', marginLeft: '10px' }}>
+          Add Goal
+        </button>
+      </div>
+
+      <pre>{JSON.stringify(goals, null, 2)}</pre>
     </div>
   );
 }
+
+export default App;
