@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchGoals, createGoal, deleteGoal } from './api';
+import './app.css';
 
 function App() {
   const [goals, setGoals] = useState([]);
@@ -29,7 +30,7 @@ function App() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className='container'>
       <h1>My Goals</h1>
       
       <div>
@@ -38,9 +39,9 @@ function App() {
           value={newGoal} //goal you put in
           onChange={(e) => setNewGoal(e.target.value)}
           placeholder="Enter a goal"
-          style={{ padding: '10px', width: '300px' }}
+          className='input'
         />
-        <button onClick={addGoal} style={{ padding: '10px', marginLeft: '10px' }}>
+        <button onClick={addGoal} className='addGoalButton'>
           Add Goal
         </button>
       </div>
@@ -50,10 +51,8 @@ function App() {
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .map((goal) => { //should be a good example of map
           return (
-          <div key={goal.id}>
+          <div key={goal.id} className='goalContainer'>
             <h3>{goal.goal}</h3>
-            <p>{goal.userid}</p>
-            <p>{goal.date}</p>
             <button onClick={() => handleDelete(goal.id)}>Delete</button>
           </div>
         )})}
