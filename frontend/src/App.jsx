@@ -16,6 +16,8 @@ function App() {
   }, []);
 
   const addGoal = () => {
+    if (!newGoal.trim()) return;
+    
     createGoal(newGoal)
       .then(() => {
         setNewGoal('');
@@ -48,7 +50,7 @@ function App() {
       setAgentResult('Reflecting...');
       const reflection = await reflectOnResult(executeResult.result);
       console.log('Reflection:', reflection);
-      //change things in here later for agent io shit
+      
       setAgentResult(`Done! Reflection: ${reflection.result}`);
     } catch (error) {
       console.error('Agent error:', error);
@@ -77,7 +79,7 @@ function App() {
 
       <div>
         {goals.length > 0 && goals
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))  // Changed from date to created_at
         .map((goal) => {
           return (
           <div key={goal.id} className='goalContainer'>

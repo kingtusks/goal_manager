@@ -46,18 +46,18 @@ async def get_all_goals(db: Session = Depends(get_db)):
     return db_goals 
 
 @app.get("/goal/{uid}") #r
-async def get_goals_from_userid(userid: int, db: Session = Depends(get_db)):
-    db_goals = db.query(models.GoalsTable).filter(models.GoalsTable.userid == userid).all()
+async def get_goals_from_userid(user_id: int, db: Session = Depends(get_db)):  
+    db_goals = db.query(models.GoalsTable).filter(models.GoalsTable.user_id == user_id).all()  
     if db_goals:
         return db_goals
-    raise HTTPException(status_code=404, detail=f"No goals found for user id: {userid}")
+    raise HTTPException(status_code=404, detail=f"No goals found for user id: {user_id}")
 
 @app.get("/goal/{id}") #r
 async def get_goals_from_id(id: int, db: Session = Depends(get_db)):
     db_goal = db.query(models.GoalsTable).filter(models.GoalsTable.id == id).first()
     if db_goal:
         return db_goal
-    raise HTTPException(status_code=404, detail="No goals found with id: {id}")
+    raise HTTPException(status_code=404, detail=f"No goals found with id: {id}") 
 
 @app.post("/creategoal") #c
 async def make_goal(goal: models.GoalsPydantic, db: Session = Depends(get_db)):
@@ -72,7 +72,7 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
         db.delete(db_goal)
         db.commit()
         return {"id of goal deleted": id}
-    raise HTTPException(status_code=404, detail="No goals found with id: {id}")
+    raise HTTPException(status_code=404, detail=f"No goals found with id: {id}")  
 
 @app.post("/agent/execute")
 async def execute_plan(request: AgentRequest):

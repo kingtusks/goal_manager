@@ -9,7 +9,11 @@ export const createGoal = async (goal) => {
   const response = await fetch(`${API_URL}/creategoal`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userid: 1, goal, date: new Date() })
+    body: JSON.stringify({ 
+      user_id: 1,  
+      goal, 
+      created_at: new Date().toISOString() 
+    })
   });
   return response.json();
 };
@@ -21,7 +25,6 @@ export const deleteGoal = async (id) => {
   return response.json();
 };
 
-// Agent functions
 export const createPlan = async (goal) => {
   const response = await fetch(`${API_URL}/agent/plan`, {
     method: 'POST',
