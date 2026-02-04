@@ -25,7 +25,7 @@ export const deleteGoal = async (id) => {
   return response.json();
 };
 
-export const createPlan = async (goal) => {
+export const makePlan = async (goal) => {
   const response = await fetch(`${API_URL}/agent/plan`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -22,8 +22,6 @@ class UserTable(Base):
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)  # hash later
     
-#--
-
 class GoalsPydantic(BaseModel):
     #id: int
     user_id: int
@@ -41,8 +39,10 @@ class GoalsTable(Base):
     goal = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+#--
+
 class TasksPydantic(BaseModel):
-    id: int
+    #id: int
     user_id: int
     goal_id: int
     description: str
@@ -68,10 +68,10 @@ class TasksTable(Base):
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
 class AgentOutputsPydantic(BaseModel):
-    id: int
-    task_id: int
-    agent_type: str
-    output_text: str
+    #id: int
+    task_id: int #kept as 1 for now
+    agent_type: str #reflector executor planner
+    output_text: str 
     created_at: datetime
 
     class Config:

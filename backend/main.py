@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from agents.executor import executePlan
 from agents.planner import makePlan
 from agents.reflector import reflectPlan
+from datetime import datetime, timezone
 import models
 
 app = FastAPI()
@@ -74,18 +75,34 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
         return {"id of goal deleted": id}
     raise HTTPException(status_code=404, detail=f"No goals found with id: {id}")  
 
-@app.post("/agent/execute")
-async def execute_plan(request: AgentRequest):
+@app.post("/agent/plan")
+async def create_plan(request: PlannerRequest, db: Session = Depends(get_db)):
     try:
-        result = await executePlan(request.plan)
+        result = await makePlan(request.goal)
+        resultObj = models.AgentOutputsPydantic(
+            task_id=1, #change later
+            agent_type="planner",
+            output_text=result, 
+            created_at=datetime.now(timezone.utc).isoformat()
+        )
+        db.add(models.AgentOutputsTable(**resultObj.model_dump()))) #c
+        db.commit()
         return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/agent/plan")
-async def create_plan(request: PlannerRequest):
+@app.post("/agent/execute")
+async def execute_plan(request: AgentRequest):
     try:
-        result = await makePlan(request.goal)
+        result = await executePlan(request.plan)
+        resultObj = models.AgentOutputsPydantic(
+            task_id=1, #change later
+            agent_type="executor",
+            output_text=result, 
+            created_at=datetime.now(timezone.utc).isoformat()
+        )
+        db.add(models.AgentOutputsTable(**resultObj.model_dump()))) #c
+        db.commit()
         return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -94,6 +111,19 @@ async def create_plan(request: PlannerRequest):
 async def reflect_on_result(request: ReflectorRequest):
     try:
         result = await reflectPlan(request.result)
+        resultObj = models.AgentOutputsPydantic(
+            task_id=1, #change later
+            agent_type="reflector",
+            output_text=result, 
+            created_at=datetime.now(timezone.utc).isoformat()
+        )
+        db.add(models.AgentOutputsTable(**resultObj.model_dump()))) #c
+        db.commit()
         return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+#WHEN YOU SEE THIS. YOU WILL CONNECT THE AGENTS TO THE DATABASE
+#maybe connect them all to redis (for read/write) and make redis connect to postgres
+#YOU WILL LET THEM BE ABLE TO WRITE THINGS (VIA FASTAPI W/SQLALCHEMY)
+#YOU WILL ALSO GIVE THEM ACCESS TO THE DATABASE AS A MCP SERVER (HOPEFULLY.)

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchGoals, createGoal, deleteGoal, createPlan, executePlan, reflectOnResult } from './api';
+import { fetchGoals, createGoal, deleteGoal, makePlan, executePlan, reflectOnResult } from './api';
 import './app.css';
-
 
 function App() {
   const [goals, setGoals] = useState([]);
@@ -40,7 +39,7 @@ function App() {
     
     try {
       setAgentResult('Planning...');
-      const planResult = await createPlan(goalText);
+      const planResult = await makePlan(goalText);
       console.log('Plan:', planResult);
       
       setAgentResult('Executing plan...');
