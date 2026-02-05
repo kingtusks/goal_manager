@@ -18,4 +18,11 @@ async def makePlan(goal: str):
         }]
     )
 
-    return response['message']['content']
+    result = response['message']['content']
+    steps = [
+        step.strip()
+        for step in result.split("\n")
+        if step.strip() and not step.strip().startswith("#")
+    ]
+
+    return steps

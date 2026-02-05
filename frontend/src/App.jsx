@@ -81,7 +81,7 @@ function App() {
           type="text"
           value={newGoal}
           onChange={(e) => setNewGoal(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && addGoal()}
+          onKeyUp={(e) => e.key === 'Enter' && addGoal()}
           placeholder="Enter a goal"
           className='input'
         />
