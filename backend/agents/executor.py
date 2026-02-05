@@ -1,9 +1,10 @@
-#plan -> quizzes (dont forget score alt it may not be implemented here)
+#task -> quiz (score in frontend)
 from ollama import AsyncClient
 import os
 from decouple import config
 
-async def executePlan(plan: str):
+#make a new executor.txt and refactor this + in app.jsx
+async def executeTask(task: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "executor.txt")
 
@@ -14,7 +15,7 @@ async def executePlan(plan: str):
         model=config("OLLAMA_MODEL"),
         messages=[{
             "role": "user",
-            "content": raw_prompt.replace("{{GOAL}}", plan)
+            "content": raw_prompt.replace("{{TASK}}", task)
         }]
     )
 

@@ -3,7 +3,7 @@ from ollama import AsyncClient
 import os
 from decouple import config
 
-async def reflectPlan(score: str):
+async def reflectOutput(task_output: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "reflector.txt")
 
@@ -14,7 +14,7 @@ async def reflectPlan(score: str):
         model=config("OLLAMA_MODEL"),
         messages=[{
             "role": "user",
-            "content": raw_prompt.replace("{{GOAL}}", score)
+            "content": raw_prompt.replace("{{TASK_OUTPUT}}", task_output)
         }]
     )
 

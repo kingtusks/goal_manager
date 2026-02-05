@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import sessionDB, engine
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from agents.executor import executePlan
+from agents.executor import executeTask
 from agents.planner import makePlan
-from agents.reflector import reflectPlan
+from agents.reflector import reflectOutput
 from datetime import datetime, timezone
 import models
 
