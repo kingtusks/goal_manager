@@ -23,10 +23,10 @@ class UserTable(Base):
     password = Column(String, nullable=False)  # hash later
     
 class GoalsPydantic(BaseModel):
-    #id: int
+    id: Optional[int] = None
     user_id: int
     goal: str
-    #created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
@@ -42,11 +42,10 @@ class GoalsTable(Base):
 #--
 
 class TasksPydantic(BaseModel):
-    #id: int
     user_id: int
     goal_id: int
     description: str
-    status: str
+    status: str = "pending"
     scheduled_day: Optional[int]
     estimated_minutes: Optional[int]
 
@@ -60,19 +59,18 @@ class TasksTable(Base):
     user_id = Column(Integer, index=True, nullable=False)
     goal_id = Column(Integer, index=True, nullable=False)
     description = Column(String, nullable=False)
-    #these can be pending running completed or failed
-    status = Column(String, default="pending")
-    scheduled_day = Column(Integer, nullable=True)
-    estimated_minutes = Column(Integer, nullable=True)
+    status = Column(String, nullable=False, default="pending")
+    scheduled_day = Column(Integer)
+    estimated_minutes = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    completed_at = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True))
 
 class AgentOutputsPydantic(BaseModel):
     #id: int
     task_id: int #kept as 1 for now
     agent_type: str #reflector executor planner
     output_text: str 
-    created_at: datetime
+    #created_at: datetime
 
     class Config:
         orm_mode = True
@@ -84,7 +82,7 @@ class AgentOutputsTable(Base):
     task_id = Column(Integer, index=True)
     agent_type = Column(String)
     output_text = Column(String)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now()) #autogens this cus func.now() calls it
 
 
 

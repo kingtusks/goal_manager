@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
-import { fetchGoals, createGoal, deleteGoal, makePlan, executePlan, reflectOnResult } from './api';
+import { 
+  fetchGoals, 
+  createGoal, 
+  deleteGoal, 
+  createPlanForGoal, 
+  executeNextTask, 
+  reflectOnTask 
+} from './api';
 import './app.css';
 
 function App() {
@@ -28,29 +35,35 @@ function App() {
 
   const handleDelete = (id) => {
     deleteGoal(id)
-    .then(() => fetchGoals())
-    .then(data => setGoals(data))
-    .catch(error => console.error('Error:', error));
+      .then(() => fetchGoals())
+      .then(data => setGoals(data))
+      .catch(error => console.error('Error:', error));
   };
 
-  const runAgents = async (goalText) => {
+  const runAgents = async (goalId) => {
     setLoading(true);
     setAgentResult('');
-    
     try {
-      setAgentResult('Planning...');
-      const planResult = await makePlan(goalText);
-      console.log('Plan:', planResult);
+      setAgentResult('Creating plan and tasks');
+      const planResult = await createPlanForGoal(goalId);
+      console.log('Plan created:', planResult);
+      setAgentResult(`Created ${planResult.tasks_created} tasks`);
       
-      setAgentResult('Executing plan...');
-      const executeResult = await executePlan(planResult.result);
-      console.log('Execution:', executeResult);
+      for (let i = 0; i < planResult.tasks_created; i++) {
+        setAgentResult(`Executing task ${i + 1}/${planResult.tasks_created}`);
+        const executeResult = await executeNextTask();
+        console.log('Execution result:', executeResult);
+        
+        if (executeResult.message === "No pending tasks") {
+          break;
+        }
+        
+        setAgentResult(`Reflecting on task ${i + 1}.`);
+        const reflection = await reflectOnTask(executeResult.task_id);
+        console.log('Reflection:', reflection);
+      }
       
-      setAgentResult('Reflecting...');
-      const reflection = await reflectOnResult(executeResult.result);
-      console.log('Reflection:', reflection);
-      
-      setAgentResult(`Done! Reflection: ${reflection.result}`);
+      setAgentResult('All tasks completed');
     } catch (error) {
       console.error('Agent error:', error);
       setAgentResult(`Error: ${error.message}`);
@@ -68,6 +81,7 @@ function App() {
           type="text"
           value={newGoal}
           onChange={(e) => setNewGoal(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && addGoal()}
           placeholder="Enter a goal"
           className='input'
         />
@@ -78,18 +92,24 @@ function App() {
 
       <div>
         {goals.length > 0 && goals
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))  // Changed from date to created_at
-        .map((goal) => {
-          return (
-          <div key={goal.id} className='goalContainer'>
-            <h3>{goal.goal}</h3>
-            <button onClick={() => runAgents(goal.goal)} disabled={loading}>
-              Run Agents
-            </button>
-            <button onClick={() => handleDelete(goal.id)}>Delete</button>
-          </div>
-          )
-        })}
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .map((goal) => {
+            return (
+              <div key={goal.id} className='goalContainer'>
+                <h3>{goal.goal}</h3>
+                <button 
+                  onClick={() => runAgents(goal.id)} 
+                  disabled={loading}
+                  className='runAgentsButton'
+                >
+                  {loading ? 'Running' : 'Run Agents'}
+                </button>
+                <button onClick={() => handleDelete(goal.id)}>
+                  Delete
+                </button>
+              </div>
+            )
+          })}
       </div>
 
       {agentResult && (
@@ -98,7 +118,6 @@ function App() {
           <p>{agentResult}</p>
         </div>
       )}
-
     </div>
   );
 }
