@@ -50,7 +50,7 @@ function App() {
       setAgentResult(`Created ${planResult.tasks_created} tasks`);
       
       for (let i = 0; i < planResult.tasks_created; i++) {
-        setAgentResult(`Executing task ${i + 1}/${planResult.tasks_created}`);
+        setAgentResult(`Executing task #${i + 1}/${planResult.tasks_created}`);
         const executeResult = await executeNextTask();
         console.log('Execution result:', executeResult);
         
@@ -58,7 +58,7 @@ function App() {
           break;
         }
         
-        setAgentResult(`Reflecting on task ${i + 1}.`);
+        setAgentResult(`Reflecting on task #${i + 1}.`);
         const reflection = await reflectOnTask(executeResult.task_id);
         console.log('Reflection:', reflection);
       }
@@ -74,7 +74,7 @@ function App() {
 
   return (
     <div className='container'>
-      <h1>My Goals</h1>
+      <h1>Goals</h1>
       
       <div>
         <input 
@@ -96,7 +96,7 @@ function App() {
           .map((goal) => {
             return (
               <div key={goal.id} className='goalContainer'>
-                <h3>{goal.goal}</h3>
+                <h3 className="goal">{goal.goal}</h3>
                 <button 
                   onClick={() => runAgents(goal.id)} 
                   disabled={loading}
@@ -104,7 +104,10 @@ function App() {
                 >
                   {loading ? 'Running' : 'Run Agents'}
                 </button>
-                <button onClick={() => handleDelete(goal.id)}>
+                <button 
+                  onClick={() => handleDelete(goal.id)}
+                  className='deleteButton'
+                >
                   Delete
                 </button>
               </div>

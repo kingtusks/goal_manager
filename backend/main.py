@@ -153,3 +153,4 @@ async def reflect(task_id: int, db: Session = Depends(get_db)):
     return {"reflection": reflection}
 
 #maybe connect them all to redis (for read/write) and make redis connect to postgres
+#caching ^ (will do today or tomorrow)
