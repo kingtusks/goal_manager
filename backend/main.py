@@ -152,5 +152,6 @@ async def reflect(task_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"reflection": reflection}
 
+#seems to be an issue with the planner communicating with the executor (critical)
 #maybe connect them all to redis (for read/write) and make redis connect to postgres
 #caching ^ (will do today or tomorrow)
