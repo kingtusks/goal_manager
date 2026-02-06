@@ -108,7 +108,7 @@ async def execute_next_task(db: Session = Depends(get_db)):
     db.refresh(task)
 
     try:
-        result = await executePlan(task.description)
+        result = await executeTask(task.description)
         task.status = "completed"
         task.completed_at = datetime.utcnow()
 
@@ -143,7 +143,7 @@ async def reflect(task_id: int, db: Session = Depends(get_db)):
     if not output:
         raise HTTPException(404, "No executor output")
 
-    reflection = await reflectPlan(output.output_text)
+    reflection = await reflectOutput(output.output_text)
     db.add(models.AgentOutputsTable(
         task_id=task_id,
         agent_type="reflector",
