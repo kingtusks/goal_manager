@@ -117,6 +117,7 @@ async def execute_next_task(db: Session = Depends(get_db)):
             agent_type="executor",
             output_text=result
         )
+        
         db.add(output)
         db.commit()
         return {"task_id": task.id, "result": result}

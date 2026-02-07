@@ -3,4 +3,5 @@ learn_frontend
 __pycache__
 env
 .env
+.venv
 .idea

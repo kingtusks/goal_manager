@@ -8,7 +8,7 @@ clean() {
 
 trap clean SIGINT SIGTERM
 
-source env/Scripts/activate
+source .venv/Scripts/activate
 fastapi dev backend/main.py &
 cd frontend
 npm run dev & 

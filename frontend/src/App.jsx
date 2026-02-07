@@ -7,7 +7,7 @@ import {
   executeNextTask, 
   reflectOnTask 
 } from './api';
-import './app.css';
+import './App.css';
 
 function App() {
   const [goals, setGoals] = useState([]);
@@ -50,7 +50,7 @@ function App() {
       setAgentResult(`Created ${planResult.tasks_created} tasks`);
       
       for (let i = 0; i < planResult.tasks_created; i++) {
-        setAgentResult(`Executing task #${i + 1}/${planResult.tasks_created}`);
+        setAgentResult(`Executing task ${i + 1}/${planResult.tasks_created}`  );
         const executeResult = await executeNextTask();
         console.log('Execution result:', executeResult);
         
@@ -58,7 +58,7 @@ function App() {
           break;
         }
         
-        setAgentResult(`Reflecting on task #${i + 1}.`);
+        setAgentResult(`Reflecting on task ${i + 1}.`);
         const reflection = await reflectOnTask(executeResult.task_id);
         console.log('Reflection:', reflection);
       }
