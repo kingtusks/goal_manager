@@ -94,6 +94,23 @@ async def login(user: UserLogin, db: Session = Depends(get_db)):
         "user_id": db_user.user_id,
         "username": db_user.username
     }
+
+@app.patch("/user/{user_id}/password") #u (put updates everything while patch does specifics)
+async def change_password(user_id: int, old_password: str, new_password: str, db: Session = Depends(get_db)):
+    db_user = db.query(models.UserTable).filter(
+        models.UserTable.user_id == user_id
+    ).first()
+    
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not PasswordManager.verify_password(old_password, db_user.password):
+        raise HTTPException(status_code=401, detail="Incorrect current password")
+    
+    db_user.password = PasswordManager.hash_password(new_password)
+    db.commit()
+    
+    return {"message": "password updated successfully"}
     
 @app.get("/goals") #r
 async def get_all_goals(db: Session = Depends(get_db)):
