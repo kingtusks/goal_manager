@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, func
 from datetime import datetime
@@ -11,8 +11,7 @@ class UserPydantic(BaseModel):
     username: str
     email: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserTable(Base):
     __tablename__ = "users"
@@ -28,8 +27,7 @@ class GoalsPydantic(BaseModel):
     goal: str
     created_at: Optional[datetime] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class GoalsTable(Base):
     __tablename__ = "goals"
@@ -39,8 +37,6 @@ class GoalsTable(Base):
     goal = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-#--
-
 class TasksPydantic(BaseModel):
     user_id: int
     goal_id: int
@@ -49,8 +45,7 @@ class TasksPydantic(BaseModel):
     scheduled_day: Optional[int]
     estimated_minutes: Optional[int]
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TasksTable(Base):
     __tablename__ = "tasks"
@@ -72,8 +67,7 @@ class AgentOutputsPydantic(BaseModel):
     output_text: str 
     #created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AgentOutputsTable(Base):
     __tablename__ = "agent_outputs"

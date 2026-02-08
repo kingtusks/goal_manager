@@ -1,9 +1,9 @@
-import redis.asyncio as aioredis
+import redis.asyncio as redis
 import json
 from typing import Any
 from decouple import config
 
-redis_client = aioredis.from_url(
+redis_client = redis.from_url(
     f"redis://{config('REDIS_HOST', default='localhost')}:{config('REDIS_PORT', default=6379)}",
     decode_responses=True
 )

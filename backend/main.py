@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from database import sessionDB, engine
-from redis import RedisCache
+from redis_client import RedisCache
 from sqlalchemy.orm import Session
 from agents.executor import executeTask
 from agents.planner import makePlan
