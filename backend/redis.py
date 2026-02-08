@@ -49,7 +49,7 @@ class RedisCache:
             keys = []
             async for key in redis_client.scan_iter(pattern):
                 keys.append(key)
-            if keys
+            if keys:
                 await redis_client.delete(*keys)
             return True
         except Exception as e:

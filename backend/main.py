@@ -1,12 +1,12 @@
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from database import sessionDB, engine
-from pydantic import BaseModel
+from redis import RedisCache
 from sqlalchemy.orm import Session
 from agents.executor import executeTask
 from agents.planner import makePlan
 from agents.reflector import reflectOutput
-from datetime import datetime, timezone
+from datetime import datetime
 import models
 
 app = FastAPI()
@@ -34,20 +34,35 @@ async def root():
 
 @app.get("/goals") #r
 async def get_all_goals(db: Session = Depends(get_db)):
+    cached = await RedisCache.get("goals:all")
+    if cached:
+        return cached
     db_goals = db.query(models.GoalsTable).all()
-    return db_goals 
+    goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goals]
+    await RedisCache.set("goals:all", goals_dict, expiry=300)
+    return goals_dict 
 
 @app.get("/goal/user/{user_id}") #r
 async def get_goals_from_userid(user_id: int, db: Session = Depends(get_db)):  
+    cached = await RedisCache.get(f"goals:user:{user_id}")
+    if cached:
+        return cached
     db_goals = db.query(models.GoalsTable).filter(models.GoalsTable.user_id == user_id).all()  
     if db_goals:
+        goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goals]
+        await RedisCache.set(f"goals:user:{user_id}", goals_dict, expiry=300)
         return db_goals
     raise HTTPException(status_code=404, detail=f"No goals found for user id: {user_id}")
 
 @app.get("/goal/{goal_id}") #r
 async def get_goals_from_id(goal_id: int, db: Session = Depends(get_db)):
+    cached = await RedisCache.get(f"goal:{goal_id}")
+    if cached:
+        return cached
     db_goal = db.query(models.GoalsTable).filter(models.GoalsTable.id == goal_id).first()
     if db_goal:
+        goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goals]
+        await RedisCache.set(f"goal:{goal_id}", goals_dict, expiry=300)
         return db_goal
     raise HTTPException(status_code=404, detail=f"No goals found with id: {goal_id}") 
 
@@ -60,6 +75,8 @@ async def make_goal(goal: models.GoalsPydantic, db: Session = Depends(get_db)):
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)
+    await RedisCache.delete("goals:all") #this is so the next r gets updated data
+    await RedisCache.delete(f"goals:user:{goal.user_id}") #this too lol
     return db_goal
 
 @app.delete("/deletegoal") #d
@@ -68,6 +85,9 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
     if db_goal:
         db.delete(db_goal)
         db.commit()
+        await RedisCache.delete("goals:all")
+        await RedisCache.delete(f"goals:user:{user_id}")
+        await RedisCache.delete(f"goal:{id}")
         return {"id of goal deleted": id}
     raise HTTPException(status_code=404, detail=f"No goals found with id: {id}")  
 
@@ -78,6 +98,11 @@ async def create_plan(goal_id: int, db: Session = Depends(get_db)):
     ).first()
     if not goal:
         raise HTTPException(404, "Goal not found")
+
+    cached = await RedisCache.get(f"plan:goal:{goal_id}")
+    if cached:
+        return cached
+
     steps = await makePlan(goal.goal) #returns a list[str]
     created_tasks = []
     for step in steps:
@@ -89,7 +114,10 @@ async def create_plan(goal_id: int, db: Session = Depends(get_db)):
         db.add(task)
         created_tasks.append(task)
     db.commit()
-    return {"tasks_created": len(created_tasks)}
+
+    result = {"tasks_created": len(created_tasks)}
+    await RedisCache.set(f"plan:goal:{goal_id}", result, expiry=3600)
+    return result
 
 @app.post("/agent/execute/task")
 async def execute_next_task(db: Session = Depends(get_db)):
@@ -103,11 +131,17 @@ async def execute_next_task(db: Session = Depends(get_db)):
     if not task:
         return {"message": "No pending tasks"}
 
+    #may add a goal here idk
+
     task.status = "running"
     db.commit()
     db.refresh(task)
 
     try:
+        cached = await RedisCache.get(f"execution:task:{task.id}")
+        if cached:
+            return cached
+
         result = await executeTask(task.description)
         task.status = "completed"
         task.completed_at = datetime.utcnow()
@@ -120,7 +154,9 @@ async def execute_next_task(db: Session = Depends(get_db)):
         
         db.add(output)
         db.commit()
-        return {"task_id": task.id, "result": result}
+        result = {"task_id": task.id, "result": result}
+        await RedisCache.set(f"execution:task:{task.id}", result, expiry=3600)
+        return result
     except Exception as e:
         task.status = "failed"
         db.commit()
@@ -128,6 +164,10 @@ async def execute_next_task(db: Session = Depends(get_db)):
 
 @app.post("/agent/reflect/task/{task_id}")
 async def reflect(task_id: int, db: Session = Depends(get_db)):
+    cached = await RedisCache.get(f"reflection:task:{task_id}")
+    if cached:
+        return cached
+
     existing = db.query(models.AgentOutputsTable).filter(
         models.AgentOutputsTable.task_id == task_id,
         models.AgentOutputsTable.agent_type == "reflector"
@@ -151,8 +191,8 @@ async def reflect(task_id: int, db: Session = Depends(get_db)):
         output_text=reflection
     ))
     db.commit()
-    return {"reflection": reflection}
+    result = {"reflection": reflection}
+    await RedisCache.set(f"reflection:task:{task_id}", result, expiry=3600)
+    return result
 
 #seems to be an issue with the planner communicating with the executor (critical)
-#maybe connect them all to redis (for read/write) and make redis connect to postgres
-#caching ^ (will do today or tomorrow)
