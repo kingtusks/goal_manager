@@ -1,20 +1,18 @@
-import redis
+import redis.asyncio as aioredis
 import json
 from typing import Any
 from decouple import config
 
-redis_client = redis.Redis(
-    host=config("REDIS_HOST", default="localhost"),
-    port=config("REDIS_PORT", default=6379),
-    db=0,
+redis_client = aioredis.from_url(
+    f"redis://{config('REDIS_HOST', default='localhost')}:{config('REDIS_PORT', default=6379)}",
     decode_responses=True
 )
 
 class RedisCache:
     @staticmethod
-    def get(key: str): #r
+    async def get(key: str): #r
         try:
-            value = redis_client.get(key)
+            value = await redis_client.get(key)
             if value:
                 return json.loads(value)
             return None
@@ -23,10 +21,10 @@ class RedisCache:
             return None
     
     @staticmethod
-    def set(key: str, value: Any, expiry: int = 3600): #c
+    async def set(key: str, value: Any, expiry: int = 3600): #c
         try:
             #setex is just set with an expiration time (cus yea redis)
-            redis_client.setex(
+            await redis_client.setex(
                 key,
                 expiry,
                 json.dumps(value, default=str) #str is for the datetime stuff
@@ -37,23 +35,24 @@ class RedisCache:
             return False
 
     @staticmethod
-    def delete(key: str): #d
+    async def delete(key: str): #d
         try:
-            redis_client.delete(key)
+            await redis_client.delete(key)
             return True
         except Exception as e:
             print("Redis delete(d) error: {e}")
             return False
 
     @staticmethod
-    def delete_pattern(pattern: str): #d
+    async def delete_pattern(pattern: str): #d
         try:
-            keys = redis_client.keys(pattern)
-            if keys:
-                redis_client.delete(*keys)
+            keys = []
+            async for key in redis_client.scan_iter(pattern):
+                keys.append(key)
+            if keys
+                await redis_client.delete(*keys)
             return True
         except Exception as e:
             print(f"Redis delete pattern(d) error: {e}")
             return False
     
-#make this async cus i forgot
