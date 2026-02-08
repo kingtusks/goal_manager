@@ -1,6 +1,8 @@
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from database import sessionDB, engine
+from pydantic import BaseModel
+from auth import PasswordManager
 from redis_client import RedisCache
 from sqlalchemy.orm import Session
 from agents.executor import executeTask
@@ -8,6 +10,15 @@ from agents.planner import makePlan
 from agents.reflector import reflectOutput
 from datetime import datetime
 import models
+
+class UserRegister(BaseModel):
+    username: str
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
 
 app = FastAPI()
 
@@ -32,6 +43,58 @@ def get_db():
 async def root():
     return {"ok": True}
 
+@app.post("/signup") #c
+async def signup(user: UserRegister, db: Session = Depends(get_db)):
+    existing_user = db.query(models.UserTable).filter(
+        models.UserTable.username == user.username
+    ).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already taken")
+
+    existing_email = db.query(models.UserTable).filter(
+        models.UserTable.email == user.email
+    ).first()
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email already in use")
+
+    hashed_password = PasswordManager.hash_password(user.password)
+
+    new_user = models.UserTable(
+        username = user.username,
+        email = user.email,
+        password = hashed_password
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "message": "user made",
+        "user_id": new_user.user_id,
+        "username": new_user.username
+    }
+
+@app.get("/login") #r
+async def login(user: UserLogin, db: Session = Depends(get_db)):
+    db_user = db.query(models.UserTable).filter(
+        models.UserTable.username == user.username
+    )
+    if not db_user:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    if not PasswordManager.verify_password(user.password, db_user.password):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    if PasswordManager.needs_rehash(db_user.password):
+        db_user.password = PasswordManager.hash_password(user.password)
+        db.commit()
+    
+    return {
+        "message": "Login successful",
+        "user_id": db_user.user_id,
+        "username": db_user.username
+    }
+    
 @app.get("/goals") #r
 async def get_all_goals(db: Session = Depends(get_db)):
     cached = await RedisCache.get("goals:all")
