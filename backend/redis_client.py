@@ -40,7 +40,7 @@ class RedisCache:
             await redis_client.delete(key)
             return True
         except Exception as e:
-            print("Redis delete(d) error: {e}")
+            print(f"Redis delete(d) error: {e}")
             return False
 
     @staticmethod

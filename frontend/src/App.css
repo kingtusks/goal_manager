@@ -4,7 +4,7 @@
     --bg-color: #22223B;
     --font: "Ubuntu";
     --text-color: #f7f9f9;
-    --button-color: #59b065;
+    --button-color: #f80257;
     --input-color: #3f4045;
     --input-focus-color: #55575d;   
 }
@@ -20,6 +20,12 @@ h1 {
 .container {
     font-family: var(--font);
     color: var(--text-color);
+    display: flex;
+}
+
+.leftAlign {
+    padding: 10px;
+    border-right: #3f4045 1px solid;
 }
 
 .input{
@@ -43,8 +49,8 @@ h1 {
     padding: 10px;
     margin-left: 10px;
     border: none;
-    background-color: var(--button-color);
-    color: var(--text-color);
+    background-color: var(--text-color);
+    color: var(--bg-color);
     border-radius: 10px;
     font-family: var(--font);   
 }
@@ -55,6 +61,25 @@ h1 {
 }
 
 .goal {
-    font-weight: 425;
+    font-weight: 400;
 }
 
+.runAgentsButton {
+    padding: 10px;
+    margin-left: 10px;
+    border: none;
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    border-radius: 10px;
+    font-family: var(--font); 
+}
+
+.deleteButton {
+    padding: 10px;
+    margin-left: 10px;
+    border: none;
+    background-color: var(--button-color);
+    color: var(--text-color);
+    border-radius: 10px;
+    font-family: var(--font); 
+}

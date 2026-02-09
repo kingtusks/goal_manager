@@ -5,7 +5,9 @@ import {
   deleteGoal, 
   createPlanForGoal, 
   executeNextTask, 
-  reflectOnTask 
+  reflectOnTask,
+  registerUser,
+  loginUser 
 } from './api';
 import './App.css';
 
@@ -74,29 +76,15 @@ function App() {
 
   return (
     <div className='container'>
-      <h1>Goals</h1>
-      
-      <div>
-        <input 
-          type="text"
-          value={newGoal}
-          onChange={(e) => setNewGoal(e.target.value)}
-          onKeyUp={(e) => e.key === 'Enter' && addGoal()}
-          placeholder="Enter a goal"
-          className='input'
-        />
-        <button onClick={addGoal} className='addGoalButton'>
-          Add Goal
-        </button>
-      </div>
-
-      <div>
+      <div className='leftAlign'>
+        <p>cortex</p>
+        <div className='goalListContainer'>
         {goals.length > 0 && goals
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           .map((goal) => {
             return (
               <div key={goal.id} className='goalContainer'>
-                <h3 className="goal">{goal.goal}</h3>
+                <p className="goal">{goal.goal}</p>
                 <button 
                   onClick={() => runAgents(goal.id)} 
                   disabled={loading}
@@ -114,7 +102,20 @@ function App() {
             )
           })}
       </div>
-
+      </div>
+      <div className='rightAlign'>
+        <div className='goalInputContainer'>
+          <input 
+            type="text"
+            value={newGoal}
+            onChange={(e) => setNewGoal(e.target.value)}
+            onKeyUp={(e) => e.key === 'Enter' && addGoal()}
+            placeholder="Enter a goal"
+            className='input'
+          />
+          <button onClick={addGoal} className='addGoalButton'>Add Goal</button>
+        </div>
+      </div>
       {agentResult && (
         <div className='agentResult'>
           <h3>Agent Status:</h3>
