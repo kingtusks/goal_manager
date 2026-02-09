@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from agents.executor import executeTask
 from agents.planner import makePlan
 from agents.reflector import reflectOutput
+from agents.replanner import replanner
 from datetime import datetime
 import models
 
@@ -276,5 +277,22 @@ async def reflect(task_id: int, db: Session = Depends(get_db)):
     result = {"reflection": reflection}
     await RedisCache.set(f"reflection:task:{task_id}", result, expiry=3600)
     return result
+
+@app.post("/agent/replan/task/{reflection}")
+async def replan(reflection: str, db: Session = Depends(get_db)):
+    try:
+        task = (
+        db.query(models.TasksTable)
+        .filter(models.TasksTable.status == "pending")
+        .order_by(models.TasksTable.created_at)
+        .with_for_update(skip_locked=True)
+        .first())
+
+        replan = await replanner(reflection, task)
+        #replace task with replan
+
+    except Exception as e:
+        raise HTTPException(500, str(e))
+    #cached = await RedisCache.get(f"")
 
 #seems to be an issue with the planner communicating with the executor (critical)
