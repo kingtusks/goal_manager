@@ -48,20 +48,36 @@ export const reflectOnTask = async (taskId) => {
   return response.json();
 };
 
-export const registerUser = async (username, email, password) => {
+export const signup = async (username, email, password) => {
   const response = await fetch(`${API_URL}/signup`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, email, password })
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, email, password }),
   });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Signup failed');
+  }
+  
   return response.json();
 };
 
-export const loginUser = async (username, password) => {
+export const login = async (username, password) => {
   const response = await fetch(`${API_URL}/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
   });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Login failed');
+  }
+  
   return response.json();
 };

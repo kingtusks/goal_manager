@@ -5,6 +5,7 @@
     --font: "Ubuntu";
     --text-color: #f7f9f9;
     --button-color: #f80257;
+    --hover-button-color: #e00552;
     --input-color: #3f4045;
     --input-focus-color: #55575d;   
 }
@@ -17,6 +18,11 @@ h1 {
     display: none;
 }
 
+.leftAlign,
+.rightAlign {
+    height: 100vh;
+}
+
 .container {
     font-family: var(--font);
     color: var(--text-color);
@@ -26,6 +32,11 @@ h1 {
 .leftAlign {
     padding: 10px;
     border-right: #3f4045 1px solid;
+}
+
+.hAlign {
+    display: flex;
+    align-items: center;
 }
 
 .input{
@@ -82,4 +93,8 @@ h1 {
     color: var(--text-color);
     border-radius: 10px;
     font-family: var(--font); 
+}
+
+.deleteButton:hover {
+    background-color: var(--hover-button-color);
 }

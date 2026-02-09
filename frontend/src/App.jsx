@@ -6,10 +6,11 @@ import {
   createPlanForGoal, 
   executeNextTask, 
   reflectOnTask,
-  registerUser,
-  loginUser 
 } from './api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faBrain, faPlay, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import './App.css';
+
 
 function App() {
   const [goals, setGoals] = useState([]);
@@ -77,7 +78,10 @@ function App() {
   return (
     <div className='container'>
       <div className='leftAlign'>
-        <p>cortex</p>
+        <div className='hAlign'>
+          <FontAwesomeIcon icon={faBrain}/>
+          <p>cortex</p>
+        </div>
         <div className='goalListContainer'>
         {goals.length > 0 && goals
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -90,13 +94,13 @@ function App() {
                   disabled={loading}
                   className='runAgentsButton'
                 >
-                  {loading ? 'Running' : 'Run Agents'}
+                  {loading ? <FontAwesomeIcon icon={faSpinner}/> : <FontAwesomeIcon icon={faPlay}/>}
                 </button>
                 <button 
                   onClick={() => handleDelete(goal.id)}
                   className='deleteButton'
                 >
-                  Delete
+                  <FontAwesomeIcon icon={faTrash}/>
                 </button>
               </div>
             )
@@ -113,7 +117,7 @@ function App() {
             placeholder="Enter a goal"
             className='input'
           />
-          <button onClick={addGoal} className='addGoalButton'>Add Goal</button>
+          <button onClick={addGoal} className='addGoalButton'><FontAwesomeIcon icon={faPlus} className='plusIcon'/></button>
         </div>
       </div>
       {agentResult && (

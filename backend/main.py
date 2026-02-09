@@ -43,6 +43,7 @@ def get_db():
 async def root():
     return {"ok": True}
 
+#takes pydantic
 @app.post("/signup") #c
 async def signup(user: UserRegister, db: Session = Depends(get_db)):
     existing_user = db.query(models.UserTable).filter(
@@ -74,11 +75,11 @@ async def signup(user: UserRegister, db: Session = Depends(get_db)):
         "username": new_user.username
     }
 
-@app.get("/login") #r
+@app.post("/login") #r
 async def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(models.UserTable).filter(
         models.UserTable.username == user.username
-    )
+    ).first()
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
@@ -116,6 +117,7 @@ async def change_password(user_id: int, old_password: str, new_password: str, db
 async def get_all_goals(db: Session = Depends(get_db)):
     cached = await RedisCache.get("goals:all")
     if cached:
+        print("redis hit")
         return cached
     db_goals = db.query(models.GoalsTable).all()
     goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goals]
