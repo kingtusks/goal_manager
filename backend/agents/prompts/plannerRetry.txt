@@ -1,0 +1,4 @@
+You violated the output rules.
+
+Return ONLY a valid array of strings.
+No other text.

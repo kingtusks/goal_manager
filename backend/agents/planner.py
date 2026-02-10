@@ -3,18 +3,23 @@ import os
 from ollama import AsyncClient
 from decouple import config
 
-async def makePlan(goal: str):
+async def makePlan(goal: str, status: bool):
+    retry = ""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "planner.txt")
 
     with open(prompt_path, "r", encoding="utf-8") as f:
         raw_prompt = f.read()
 
+    if not status:
+        with open(os.path.join(current_dir, "prompts", "plannerRetry.txt"), "r", encoding="utf-8") as f:
+            retry = f.read()
+
     response = await AsyncClient().chat(
-        model=config("OLLAMA_MODEL"),  
+        model=config("OLLAMA_MODEL", default="qwen2.5:7b-instruct"),  
         messages=[{
             "role": "user",
-            "content": raw_prompt.replace("{{GOAL}}", goal)
+            "content": f"{retry}\n{raw_prompt.replace("{{GOAL}}", goal)}"
         }]
     )
 
@@ -25,6 +30,8 @@ async def makePlan(goal: str):
         for step in result.split("\n")
         if step.strip() and not step.strip().startswith("#")
     ]
+
+    print(rawSteps)
 
     try:
         steps = rawSteps[rawSteps.index("[") + 1: rawSteps.index("]")]

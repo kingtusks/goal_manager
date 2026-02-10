@@ -169,7 +169,6 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
         db.delete(db_goal)
         db.commit()
         await RedisCache.delete("goals:all")
-        await RedisCache.delete(f"goals:user:{user_id}")
         await RedisCache.delete(f"goal:{id}")
         db.refresh(db_goal)
         return {"id of goal deleted": id}
@@ -187,7 +186,10 @@ async def create_plan(goal_id: int, db: Session = Depends(get_db)):
     if cached:
         return cached
 
-    steps = await makePlan(goal.goal) #returns a list[str]
+    steps = await makePlan(goal.goal, True) #returns a list[str]
+    if not steps:
+        print("redoing steps")
+        steps = await makePlan(goal.goal, False)
     created_tasks = []
     for step in steps:
         task = models.TasksTable(
