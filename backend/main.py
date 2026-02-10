@@ -302,12 +302,13 @@ async def replan(task_id: int, db: Session = Depends(get_db)):
         return {"message": "No next task"}
 
     decision = await replanTask(
-        goal=task.goal.goal,
-        last_task=task.description,
+        lastTask=task.description,
         reflection=reflection.output_text,
-        next_task=next_task.description
+        nextTask=next_task.description
     )
 
+    #need to fix replanner later (maybe parse for the json only)
+    '''
     action = decision["action"]
 
     if action == "keep":
@@ -333,8 +334,5 @@ async def replan(task_id: int, db: Session = Depends(get_db)):
                 parent_task_id=next_task.id
             ))
         db.commit()
-
+    '''
     return decision
-
-#seems to be an issue with the planner communicating with the executor (critical)
-#^^ check in da database

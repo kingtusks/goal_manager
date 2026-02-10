@@ -1,6 +1,5 @@
 from ollama import AsyncClient
 from decouple import config
-import json
 import os
 
 #uses adjacent tasks + reflection as context to fix tasks (adds adaptability ig)
@@ -23,4 +22,4 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
         }]
     )
 
-    return json.loads(response['message']['content'])
+    return response['message']['content']

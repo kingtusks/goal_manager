@@ -54,7 +54,6 @@ class TasksTable(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True, nullable=False)
     goal_id = Column(Integer, index=True, nullable=False)
-    parent_task_id = Column(Integer, nullable=False)
     description = Column(String, nullable=False)
     status = Column(String, nullable=False, default="pending")
     scheduled_day = Column(Integer)
