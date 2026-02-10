@@ -6,6 +6,7 @@
     --text-color: #f7f9f9;
     --button-color: #f80257;
     --hover-button-color: #e00552;
+    --hover-button-color2: #cecece;
     --input-color: #3f4045;
     --input-focus-color: #55575d;   
 }
@@ -23,6 +24,7 @@ h1 {
     height: 100vh;
 }
 
+
 .container {
     font-family: var(--font);
     color: var(--text-color);
@@ -30,8 +32,30 @@ h1 {
 }
 
 .leftAlign {
-    padding: 10px;
-    border-right: #3f4045 1px solid;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 20dvw;
+    border-right: var(--input-color) 1px solid;
+}
+
+.rightAlign {
+    width: 80dvw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo {
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.anchorWelcome {
+    margin-top: 10%;
+    font-size: 48px;
+    display: flex;
+    justify-content: center;
 }
 
 .hAlign {
@@ -39,9 +63,14 @@ h1 {
     align-items: center;
 }
 
+.inputSection {
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
 .input{
     padding: 10px;
-    width: 300px;
+    width: 70dvw;
     background: none;
     border: none;
     color: var(--text-color);
@@ -66,13 +95,28 @@ h1 {
     font-family: var(--font);   
 }
 
+
+.goalListContainer,
+.goalInputContainer {
+    margin-top: auto;
+}
+
 .goalContainer {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    padding-left: 10px;
+    padding-top: 10px;
+    margin-bottom: 10px;
+    border-top: var(--input-color) 1px solid;
 }
 
 .goal {
     font-weight: 400;
+}
+
+.anchorIcon {
+    margin-right: 3px;
 }
 
 .runAgentsButton {
@@ -83,6 +127,11 @@ h1 {
     color: var(--bg-color);
     border-radius: 10px;
     font-family: var(--font); 
+}
+
+.runAgentsButton:hover,
+.addGoalButton:hover {
+    background-color: var(--hover-button-color2);
 }
 
 .deleteButton {

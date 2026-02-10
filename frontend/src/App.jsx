@@ -6,9 +6,10 @@ import {
   createPlanForGoal, 
   executeNextTask, 
   reflectOnTask,
+  replanNextTask
 } from './api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faBrain, faPlay, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAnchor, faPlay, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import './App.css';
 
 
@@ -46,26 +47,33 @@ function App() {
   const runAgents = async (goalId) => {
     setLoading(true);
     setAgentResult('');
+
     try {
       setAgentResult('Creating plan and tasks');
       const planResult = await createPlanForGoal(goalId);
       console.log('Plan created:', planResult);
-      setAgentResult(`Created ${planResult.tasks_created} tasks`);
-      
-      for (let i = 0; i < planResult.tasks_created; i++) {
-        setAgentResult(`Executing task ${i + 1}/${planResult.tasks_created}`  );
+
+      let stepCount = 1;
+
+      while (true) {
+        setAgentResult(`Executing task ${stepCount}`);
         const executeResult = await executeNextTask();
         console.log('Execution result:', executeResult);
-        
+
         if (executeResult.message === "No pending tasks") {
           break;
         }
-        
-        setAgentResult(`Reflecting on task ${i + 1}.`);
+
+        setAgentResult(`Reflecting on task ${stepCount}`);
         const reflection = await reflectOnTask(executeResult.task_id);
         console.log('Reflection:', reflection);
+
+        setAgentResult(`Replanning after task ${stepCount}`);
+        await replanNextTask(executeResult.task_id);
+
+        stepCount++;
       }
-      
+
       setAgentResult('All tasks completed');
     } catch (error) {
       console.error('Agent error:', error);
@@ -78,54 +86,58 @@ function App() {
   return (
     <div className='container'>
       <div className='leftAlign'>
-        <div className='hAlign'>
-          <FontAwesomeIcon icon={faBrain}/>
-          <p>cortex</p>
+        <div className='hAlign logo'>
+          <FontAwesomeIcon icon={faAnchor} className='anchorIcon'/>
+          <p>anchor</p>
         </div>
         <div className='goalListContainer'>
         {goals.length > 0 && goals
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          .map((goal) => {
+          .map((goal) => {  
             return (
               <div key={goal.id} className='goalContainer'>
                 <p className="goal">{goal.goal}</p>
-                <button 
-                  onClick={() => runAgents(goal.id)} 
-                  disabled={loading}
-                  className='runAgentsButton'
-                >
-                  {loading ? <FontAwesomeIcon icon={faSpinner}/> : <FontAwesomeIcon icon={faPlay}/>}
-                </button>
-                <button 
-                  onClick={() => handleDelete(goal.id)}
-                  className='deleteButton'
-                >
-                  <FontAwesomeIcon icon={faTrash}/>
-                </button>
+                <div className='buttonContainer'>
+                  <button 
+                    onClick={() => runAgents(goal.id)} 
+                    disabled={loading}
+                    className='runAgentsButton'
+                  >
+                    {loading ? <FontAwesomeIcon icon={faSpinner}/> : <FontAwesomeIcon icon={faPlay}/>}
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(goal.id)}
+                    className='deleteButton'
+                  >
+                    <FontAwesomeIcon icon={faTrash}/>
+                  </button>
+                </div>
               </div>
             )
           })}
       </div>
       </div>
       <div className='rightAlign'>
-        <div className='goalInputContainer'>
-          <input 
-            type="text"
-            value={newGoal}
-            onChange={(e) => setNewGoal(e.target.value)}
-            onKeyUp={(e) => e.key === 'Enter' && addGoal()}
-            placeholder="Enter a goal"
-            className='input'
-          />
-          <button onClick={addGoal} className='addGoalButton'><FontAwesomeIcon icon={faPlus} className='plusIcon'/></button>
-        </div>
-      </div>
-      {agentResult && (
+        {agentResult && (
         <div className='agentResult'>
           <h3>Agent Status:</h3>
           <p>{agentResult}</p>
         </div>
-      )}
+        )}
+        <div className='goalInputContainer'>
+          <div className='hAlign inputSection'>
+            <input 
+              type="text"
+              value={newGoal}
+              onChange={(e) => setNewGoal(e.target.value)}
+              onKeyUp={(e) => e.key === 'Enter' && addGoal()}
+              placeholder="Enter a goal"
+              className='input'
+            />
+            <button onClick={addGoal} className='addGoalButton'><FontAwesomeIcon icon={faPlus} className='plusIcon'/></button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

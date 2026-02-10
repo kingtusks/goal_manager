@@ -1,11 +1,11 @@
 from ollama import AsyncClient
 from decouple import config
+import json
 import os
 
-#should take the next task + reflection and output a new task
-#task + reflection -> task
+#uses adjacent tasks + reflection as context to fix tasks (adds adaptability ig)
 
-async def replanner(reflection: str, nextTask: str):
+async def replanTask(lastTask: str, reflection: str, nextTask: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "replanner.txt")
     
@@ -18,8 +18,9 @@ async def replanner(reflection: str, nextTask: str):
             "role": "user",
             "content": raw_prompt
             .replace("{{REFLECTION}}", reflection)
+            .replace("{{LAST_TASK}}", lastTask)
             .replace("{{NEXT_TASK}}", nextTask)
         }]
     )
 
-    return response['message']['content']
+    return json.loads(response['message']['content'])

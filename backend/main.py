@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from agents.executor import executeTask
 from agents.planner import makePlan
 from agents.reflector import reflectOutput
-from agents.replanner import replanner
+from agents.replanner import replanTask
 from datetime import datetime
 import models
 
@@ -171,6 +171,7 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
         await RedisCache.delete("goals:all")
         await RedisCache.delete(f"goals:user:{user_id}")
         await RedisCache.delete(f"goal:{id}")
+        db.refresh(db_goal)
         return {"id of goal deleted": id}
     raise HTTPException(status_code=404, detail=f"No goals found with id: {id}")  
 
@@ -278,21 +279,62 @@ async def reflect(task_id: int, db: Session = Depends(get_db)):
     await RedisCache.set(f"reflection:task:{task_id}", result, expiry=3600)
     return result
 
-@app.post("/agent/replan/task/{reflection}")
-async def replan(reflection: str, db: Session = Depends(get_db)):
-    try:
-        task = (
-        db.query(models.TasksTable)
-        .filter(models.TasksTable.status == "pending")
-        .order_by(models.TasksTable.created_at)
-        .with_for_update(skip_locked=True)
-        .first())
+@app.post("/agent/replan/task/{task_id}")
+async def replan(task_id: int, db: Session = Depends(get_db)):
+    task = db.query(models.TasksTable).filter_by(id=task_id).first()
+    if not task:
+        raise HTTPException(404, "Task not found")
 
-        replan = await replanner(reflection, task)
-        #replace task with replan
+    reflection = db.query(models.AgentOutputsTable).filter_by(
+        task_id=task_id,
+        agent_type="reflector"
+    ).first()
 
-    except Exception as e:
-        raise HTTPException(500, str(e))
-    #cached = await RedisCache.get(f"")
+    if not reflection:
+        raise HTTPException(404, "No reflection")
+
+    next_task = db.query(models.TasksTable).filter(
+        models.TasksTable.goal_id == task.goal_id,
+        models.TasksTable.status == "pending"
+    ).order_by(models.TasksTable.created_at).first()
+
+    if not next_task:
+        return {"message": "No next task"}
+
+    decision = await replanTask(
+        goal=task.goal.goal,
+        last_task=task.description,
+        reflection=reflection.output_text,
+        next_task=next_task.description
+    )
+
+    action = decision["action"]
+
+    if action == "keep":
+        return
+
+    if action == "skip":
+        next_task.status = "skipped"
+        db.commit()
+        return
+
+    if action == "edit":
+        next_task.description = decision["edited_task"]
+        db.commit()
+        return
+
+    if action == "split":
+        next_task.status = "skipped"
+        for text in decision["new_tasks"]:
+            db.add(models.TasksTable(
+                user_id=next_task.user_id,
+                goal_id=next_task.goal_id,
+                description=text,
+                parent_task_id=next_task.id
+            ))
+        db.commit()
+
+    return decision
 
 #seems to be an issue with the planner communicating with the executor (critical)
+#^^ check in da database

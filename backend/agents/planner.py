@@ -1,4 +1,4 @@
-#goal -> plan for today or this week or smtn
+#goal -> plan List[tasks: str] 
 import os
 from ollama import AsyncClient
 from decouple import config
