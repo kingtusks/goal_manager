@@ -58,7 +58,7 @@ function App() {
       while (true) {
         setAgentResult(`Executing task ${stepCount}`);
         const executeResult = await executeNextTask();
-        console.log('Execution result:', executeResult);
+        console.log(executeResult);
 
         if (executeResult.message === "No pending tasks") {
           break;
@@ -66,10 +66,11 @@ function App() {
 
         setAgentResult(`Reflecting on task ${stepCount}`);
         const reflection = await reflectOnTask(executeResult.task_id);
-        console.log('Reflection:', reflection);
+        console.log(reflection);
 
         setAgentResult(`Replanning after task ${stepCount}`);
-        await replanNextTask(executeResult.task_id);
+        const decision = await replanNextTask(executeResult.task_id);
+        console.log(decision);
 
         stepCount++;
       }

@@ -3,6 +3,7 @@ from decouple import config
 import os
 
 #uses adjacent tasks + reflection as context to fix tasks (adds adaptability ig)
+#i am an idiot and didnt do the {{}} tags in the system prompt
 
 async def replanTask(lastTask: str, reflection: str, nextTask: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
