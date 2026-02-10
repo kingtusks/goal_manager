@@ -19,10 +19,17 @@ async def makePlan(goal: str):
     )
 
     result = response['message']['content']
-    steps = [
+
+    rawSteps = [
         step.strip()
         for step in result.split("\n")
         if step.strip() and not step.strip().startswith("#")
     ]
+
+    try:
+        steps = rawSteps[rawSteps.index("[") + 1: rawSteps.index("]")]
+    except ValueError:
+        steps = []
+        print("error with planner: no list made")
 
     return steps

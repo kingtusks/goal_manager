@@ -55,6 +55,7 @@ function App() {
 
       let stepCount = 1;
 
+      //ts is cus the length changes (well will change once i fix the replanner) so itll error out but dw!
       while (true) {
         setAgentResult(`Executing task ${stepCount}`);
         const executeResult = await executeNextTask();
@@ -121,7 +122,7 @@ function App() {
       <div className='rightAlign'>
         {agentResult && (
         <div className='agentResult'>
-          <h3>Agent Status:</h3>
+          <h3>Agent Status</h3>
           <p>{agentResult}</p>
         </div>
         )}

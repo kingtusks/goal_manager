@@ -147,3 +147,17 @@ h1 {
 .deleteButton:hover {
     background-color: var(--hover-button-color);
 }
+
+.agentResult {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 15%;
+}
+
+.agentResult h3 {
+    font-weight: 500;
+}
+
+
