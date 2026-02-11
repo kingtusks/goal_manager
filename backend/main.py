@@ -118,7 +118,6 @@ async def change_password(user_id: int, old_password: str, new_password: str, db
 async def get_all_goals(db: Session = Depends(get_db)):
     cached = await RedisCache.get("goals:all")
     if cached:
-        print("redis hit")
         return cached
     db_goals = db.query(models.GoalsTable).all()
     goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goals]

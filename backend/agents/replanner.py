@@ -37,7 +37,6 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
     }
 
     try:
-        #gotta change this cus this makes it a list
         jsonObj = json.loads(result[result.index("{") + 1: result.index("}")])
     except ValueError:
         jsonObj = template
