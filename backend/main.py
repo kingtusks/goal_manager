@@ -159,7 +159,7 @@ async def make_goal(goal: models.GoalsPydantic, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_goal)
     await RedisCache.delete("goals:all") #this is so the next r gets updated data
-    await RedisCache.delete(f"goals:user:{goal.user_id}") #this too lol
+    #await RedisCache.delete(f"goals:user:{goal.user_id}") #this too lol
     return db_goal
 
 @app.delete("/deletegoal") #d
@@ -169,8 +169,8 @@ async def delete_goal(id: int, db: Session = Depends(get_db)):
         db.delete(db_goal)
         db.commit()
         await RedisCache.delete("goals:all")
+        #await RedisCache.delete(f"goals:user:{user_id}")
         await RedisCache.delete(f"goal:{id}")
-        db.refresh(db_goal)
         return {"id of goal deleted": id}
     raise HTTPException(status_code=404, detail=f"No goals found with id: {id}")  
 
@@ -310,7 +310,7 @@ async def replan(task_id: int, db: Session = Depends(get_db)):
     )
 
     #need to fix replanner later (maybe parse for the json only)
-    '''
+    
     action = decision["action"]
 
     if action == "keep":
@@ -336,5 +336,5 @@ async def replan(task_id: int, db: Session = Depends(get_db)):
                 parent_task_id=next_task.id
             ))
         db.commit()
-    '''
+    
     return decision

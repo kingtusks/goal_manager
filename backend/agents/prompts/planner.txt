@@ -6,6 +6,7 @@ GOAL:
 {{GOAL}}
 
 OUTPUT RULES (MANDATORY):
+- English please
 - Output MUST be a valid JSON array of strings
 - Do NOT include explanations, comments, or extra text
 - Do NOT include markdown

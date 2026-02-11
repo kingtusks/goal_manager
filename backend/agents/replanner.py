@@ -1,5 +1,6 @@
 from ollama import AsyncClient
 from decouple import config
+import json
 import os
 
 #uses adjacent tasks + reflection as context to fix tasks (adds adaptability ig)
@@ -23,5 +24,27 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
             .replace("{{NEXT_TASK}}", nextTask)
         }]
     )
+    
+    result = response['message']['content']
 
-    return response['message']['content']
+    #print(rawResponse)
+
+    template = {
+        "action": "keep",
+        "reason": "",
+        "edited_task": "",
+        "new_tasks": []
+    }
+
+    try:
+        #gotta change this cus this makes it a list
+        jsonObj = json.loads(result[result.index("{") + 1: result.index("}")])
+    except ValueError:
+        jsonObj = template
+        print("error with planner: no list made")
+    
+    print(jsonObj)
+    template.update(jsonObj)
+    print(template)
+
+    return template

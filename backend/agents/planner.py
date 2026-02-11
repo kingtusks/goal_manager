@@ -1,5 +1,6 @@
 #goal -> plan List[tasks: str] 
 import os
+from translate import Translator
 from ollama import AsyncClient
 from decouple import config
 
@@ -13,13 +14,13 @@ async def makePlan(goal: str, status: bool):
 
     if not status:
         with open(os.path.join(current_dir, "prompts", "plannerRetry.txt"), "r", encoding="utf-8") as f:
-            retry = f.read()
+            retry = f"{f.read()}\n"
 
     response = await AsyncClient().chat(
         model=config("OLLAMA_MODEL", default="qwen2.5:7b-instruct"),  
         messages=[{
             "role": "user",
-            "content": f"{retry}\n{raw_prompt.replace("{{GOAL}}", goal)}"
+            "content": f"{retry}{raw_prompt.replace("{{GOAL}}", goal)}"
         }]
     )
 
