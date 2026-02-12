@@ -3,7 +3,8 @@ from ollama import AsyncClient
 from decouple import config
 import os
 
-async def constructor(executor_output: str):
+#implement this somehow (this is lowk gon be difficult)
+async def constructMaterial(executor_output: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "constructor.txt")
 

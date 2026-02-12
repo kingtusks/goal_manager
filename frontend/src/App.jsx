@@ -55,7 +55,6 @@ function App() {
 
       let stepCount = 1;
 
-      //ts is cus the length changes (well will change once i fix the replanner) so itll error out but dw!
       while (true) {
         setAgentResult(`Executing task ${stepCount}`);
         const executeResult = await executeNextTask();
@@ -64,6 +63,10 @@ function App() {
         if (executeResult.message === "No pending tasks") {
           break;
         }
+
+        setAgentResult(`Creating material for task ${stepCount}`);
+        const construct = await constructFromTask();
+        console.log(construct);
 
         setAgentResult(`Reflecting on task ${stepCount}`);
         const reflection = await reflectOnTask(executeResult.task_id);

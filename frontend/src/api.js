@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000'; //put this in .env later
+const API_URL = "http://localhost:8000"; //put this in .env later (im js lazy)
 
 export const fetchGoals = async () => {
   const response = await fetch(`${API_URL}/goals`);
@@ -87,6 +87,20 @@ export const replanNextTask = async (taskId) => {
   return response.json();
 };
 
+export const constructFromTask = async (taskId) => {
+  const response = await fetch(
+    `${API_URL}/agent/construct/task/${taskId}`,
+    {
+      method: "POST",
+      headers: {'Content-Type': 'application/json'}
+    }
+  );
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Request failed");
+  }
+  return response.json();
+}
 
 export const signup = async (username, email, password) => {
   const response = await fetch(`${API_URL}/signup`, {

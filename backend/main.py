@@ -9,6 +9,7 @@ from agents.executor import executeTask
 from agents.planner import makePlan
 from agents.reflector import reflectOutput
 from agents.replanner import replanTask
+from agents.constructor import constructMaterial
 from datetime import datetime
 import models
 
@@ -246,6 +247,39 @@ async def execute_next_task(db: Session = Depends(get_db)):
         task.status = "failed"
         db.commit()
         raise HTTPException(500, str(e))
+
+@app.post("/agent/construct/task/{task_id}")
+async def construct(task_id: int, db: Session = Depends(get_db)):
+    cached = await RedisCache.get(f"constructor:task:{task_id}")
+    if cached:
+        return cached
+
+    existing = db.query(models.AgentOutputsTable).filter(
+        models.AgentOutputsTable.task_id == task_id,
+        models.AgentOutputsTable.agent_type == "constructor"
+    ).first()
+
+    if existing:
+        return {"reflection": existing.output_text}
+    
+    blueprint = db.query(models.AgentOutputsTable).filter(
+        models.AgentOutputsTable.task_id == task_id,
+        models.AgentOutputsTable.agent_type == "executor"
+    ).first()
+
+    if not blueprint:
+        raise HTTPException(404, "No executor output")
+
+    constructJSON = await constructMaterial(blueprint.output_text)
+    db.add(models.AgentOutputsTable(
+        task_id=task_id,
+        agent_type="constructor",
+        output_text=constructJSON
+    ))
+    db.commit()
+    result = {"constructor json": constructJSON}
+    await RedisCache.set(f"constructor:task:{task_id}", result, expiry=3600)
+    return result
 
 @app.post("/agent/reflect/task/{task_id}")
 async def reflect(task_id: int, db: Session = Depends(get_db)):
