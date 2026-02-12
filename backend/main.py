@@ -277,7 +277,7 @@ async def construct(task_id: int, db: Session = Depends(get_db)):
         output_text=constructJSON
     ))
     db.commit()
-    result = {"constructor json": constructJSON}
+    result = {"constructorJSON": constructJSON}
     await RedisCache.set(f"constructor:task:{task_id}", result, expiry=3600)
     return result
 

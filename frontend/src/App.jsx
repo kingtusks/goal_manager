@@ -6,7 +6,8 @@ import {
   createPlanForGoal, 
   executeNextTask, 
   reflectOnTask,
-  replanNextTask
+  replanNextTask,
+  constructFromTask
 } from './api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faAnchor, faPlay, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons'
@@ -65,7 +66,7 @@ function App() {
         }
 
         setAgentResult(`Creating material for task ${stepCount}`);
-        const construct = await constructFromTask();
+        const construct = await constructFromTask(executeResult.task_id);
         console.log(construct);
 
         setAgentResult(`Reflecting on task ${stepCount}`);

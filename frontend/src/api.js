@@ -97,6 +97,7 @@ export const constructFromTask = async (taskId) => {
   );
   if (!response.ok) {
     const error = await response.json();
+    console.log(error)
     throw new Error(error.detail || "Request failed");
   }
   return response.json();
