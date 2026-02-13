@@ -1,4 +1,5 @@
 from fastmcp import FastMCP
+from decouple import config
 from ddgs import DDGS
 
 mcp = FastMCP("Web Search Service")
@@ -28,7 +29,6 @@ async def search_news(query: str, max_results: int = 5):
     return results
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(mcp.get_asgi_app(), host=config("MCP_HOST"), port=8001)
+    mcp.run(transport="sse", port=8001)
 
     
