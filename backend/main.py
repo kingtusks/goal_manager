@@ -262,22 +262,25 @@ async def construct(task_id: int, db: Session = Depends(get_db)):
     if existing:
         return {"reflection": existing.output_text}
     
-    blueprint = db.query(models.AgentOutputsTable).filter(
+    executor_output = db.query(models.AgentOutputsTable).filter(
         models.AgentOutputsTable.task_id == task_id,
         models.AgentOutputsTable.agent_type == "executor"
     ).first()
 
-    if not blueprint:
+    if not executor_output:
         raise HTTPException(404, "No executor output")
 
-    constructJSON = await constructMaterial(blueprint.output_text)
+    blueprint = await constructMaterial(executor_output.output_text)
+
+    #parse json similar to replanner
+
     db.add(models.AgentOutputsTable(
         task_id=task_id,
         agent_type="constructor",
-        output_text=constructJSON
+        output_text=blueprint
     ))
     db.commit()
-    result = {"constructorJSON": constructJSON}
+    result = {"constructor_output": blueprint}
     await RedisCache.set(f"constructor:task:{task_id}", result, expiry=3600)
     return result
 
@@ -342,6 +345,12 @@ async def replan(task_id: int, db: Session = Depends(get_db)):
         nextTask=next_task.description
     )
 
+    db.add(models.AgentOutputsTable(
+        task_id=task_id,
+        agent_type="replanner",
+        output_text=decision
+    ))
+
     #need to fix replanner later (maybe parse for the json only)
     
     action = decision["action"]
@@ -368,6 +377,6 @@ async def replan(task_id: int, db: Session = Depends(get_db)):
                 description=text,
                 parent_task_id=next_task.id
             ))
-        db.commit()
-    
+
+    db.commit()
     return decision
