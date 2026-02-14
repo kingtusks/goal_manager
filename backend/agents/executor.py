@@ -7,7 +7,7 @@ import os
 import json
 import httpx
 
-#implement web search
+#add a "code sandbox so we get accurate code (for coding stuff)"
 async def executeTask(task: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "executor.txt")

@@ -7,6 +7,7 @@ import os
 #i am an idiot and didnt do the {{}} tags in the system prompt
 #also parse for json object after i parse planner
 
+#storage + web
 async def replanTask(lastTask: str, reflection: str, nextTask: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "replanner.txt")

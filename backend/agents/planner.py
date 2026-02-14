@@ -1,9 +1,11 @@
 #goal -> plan List[tasks: str] 
 import os
-from translate import Translator
+#from translate import Translator
 from ollama import AsyncClient
 from decouple import config
 
+
+#add web search + memory (redis/psql)
 async def makePlan(goal: str, status: bool):
     retry = ""
     current_dir = os.path.dirname(os.path.abspath(__file__))
