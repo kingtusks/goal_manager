@@ -1,5 +1,5 @@
 import asyncio
-from executor import executeTask
+from .executor import executeTask
 
 async def main():
     result = await executeTask("What are the latest developments in AI?")
