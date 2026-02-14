@@ -2,7 +2,6 @@ from ollama import AsyncClient
 import os
 from decouple import config
 
-#ig could look at other database entries for more context (read only)
 #storage
 async def reflectOutput(task_output: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))

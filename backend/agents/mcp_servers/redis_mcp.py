@@ -4,6 +4,8 @@ from decouple import config
 from typing import Optional
 import json
 
+#port 8003
+
 mcp = FastMCP("Redis Search")
 client = None
 

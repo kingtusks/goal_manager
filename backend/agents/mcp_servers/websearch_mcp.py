@@ -1,6 +1,8 @@
 from fastmcp import FastMCP
 from ddgs import DDGS
 
+#port 8001
+
 mcp = FastMCP("Web Search Service")
 
 @mcp.tool()

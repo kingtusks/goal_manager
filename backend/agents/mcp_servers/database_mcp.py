@@ -5,6 +5,8 @@ from decouple import config
 from typing import Optional
 from ...models import GoalsTable, TasksTable, AgentOutputsTable
 
+#port 8002
+
 mcp = FastMCP("Database Search")
 
 engine = None
