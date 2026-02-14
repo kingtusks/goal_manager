@@ -28,6 +28,6 @@ async def search_news(query: str, max_results: int = 5):
     return results
 
 if __name__ == "__main__":
-    mcp.run(transport="sse", port=8001)
+    mcp.run(transport="sse", host=config("MCP_HOST"), port=8001)
 
     
