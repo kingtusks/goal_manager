@@ -1,7 +1,10 @@
 from ollama import AsyncClient
+from mcp import ClientSession
+from mcp.client.sse import sse_client
 from decouple import config
 import json
 import os
+import httpx
 
 #uses adjacent tasks + reflection as context to fix tasks (adds adaptability ig)
 #i am an idiot and didnt do the {{}} tags in the system prompt
