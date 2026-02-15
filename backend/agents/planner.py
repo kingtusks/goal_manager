@@ -14,7 +14,7 @@ mcp_links = {
     "redis": "http://localhost:8003/sse"
 }
 
-async def makePlan(goal: str, status: bool):
+async def makePlan(goal: str, status: bool = True):
     retry = ""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "planner.txt")

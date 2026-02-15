@@ -186,7 +186,7 @@ async def create_plan(goal_id: int, db: Session = Depends(get_db)):
     if cached:
         return cached
 
-    steps = await makePlan(goal.goal, True) #returns a list[str]
+    steps = await makePlan(goal.goal) #returns a list[str]
     if not steps:
         print("redoing steps")
         steps = await makePlan(goal.goal, False)

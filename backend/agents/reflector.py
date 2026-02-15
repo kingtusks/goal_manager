@@ -10,16 +10,6 @@ mcp_links = {
     "redis": "http://localhost:8003/sse"
 }
 
-'''
-    response = await AsyncClient().chat(
-        model=config("OLLAMA_MODEL"),
-        messages=[{
-            "role": "user",
-            "content": raw_prompt.replace("{{TASK_OUTPUT}}", task_output)
-        }]
-    )
-'''
-
 #storage
 async def reflectOutput(task_output: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -105,5 +95,5 @@ async def reflectOutput(task_output: str):
     else:
         print("no tools needed")
         result = response['message']['content']
-        
+
     return result
