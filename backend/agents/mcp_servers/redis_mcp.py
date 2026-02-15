@@ -16,7 +16,8 @@ async def get_redis():
             f"redis://{config('REDIS_HOST', default='localhost')}:{config('REDIS_PORT', default=6379)}",
         )
     return client
-
+    
+'''
 @mcp.tool()
 async def get_cached_goals(user_id: Optional[int] = None):
     if user_id:
@@ -34,6 +35,7 @@ async def get_cached_goals(user_id: Optional[int] = None):
             return {"raw": cached.decode() if isinstance(cached, bytes) else cached}
     
     return None
+'''
 
 @mcp.tool()
 async def get_cached_goals(goal_id: int):

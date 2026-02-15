@@ -1,4 +1,5 @@
 from fastmcp import FastMCP
+from decouple import config
 from ddgs import DDGS
 
 #port 8001

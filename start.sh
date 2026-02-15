@@ -1,16 +1,26 @@
 #!/bin/bash
 
-clean() {
-    echo "shutting down"
-    kill $(jobs -p) 2>/dev/null
-    exit
-}
+#just for me 2>/dev/null just makes it so errors wont be visible
+redis-server --daemonize yes 2>/dev/null 
 
-trap clean SIGINT SIGTERM
+ollama serve & 
 
-source .venv/Scripts/activate
-fastapi dev backend/main.py &
+sleep 2
+
+source env/bin/activate
+
+python backend/agents/mcp_servers/database_mcp.py &
+python backend/agents/mcp_servers/redis_mcp.py &
+python backend/agents/mcp_servers/websearch_mcp.py &
+
+sleep 3
+
+cd backend
+uvicorn main:app --reload &
+cd ..
+
+sleep 2
+
 cd frontend
-npm run dev & 
-
-wait
+npm run dev
+cd ..

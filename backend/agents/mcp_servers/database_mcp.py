@@ -3,7 +3,14 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy import select, func
 from decouple import config
 from typing import Optional
-from ...models import GoalsTable, TasksTable, AgentOutputsTable
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+sys.path.insert(0, project_root) #had to do this stupid shit cus python wouldnt know where backend is
+
+from backend.models import GoalsTable, TasksTable, AgentOutputsTable
 
 #port 8002
 
