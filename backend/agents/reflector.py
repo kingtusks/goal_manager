@@ -10,7 +10,6 @@ mcp_links = {
     "redis": "http://localhost:8003/sse"
 }
 
-#storage
 async def reflectOutput(task_output: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "reflector.txt")

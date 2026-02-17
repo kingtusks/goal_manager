@@ -6,6 +6,10 @@ based on the reflection.
 You MUST output valid JSON.
 Choose exactly one action.
 
+REFLECTION: {{REFLECTION}}
+LAST_TASK: {{LAST_TASK}}
+NEXT_TASK: {{NEXT_TASK}}
+
 Actions:
 - keep
 - edit
