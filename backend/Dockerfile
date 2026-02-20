@@ -1,7 +1,7 @@
 from python:3.12-slim
 workdir /app
-env PYTHONDONTWRITEBYTECODE = 1
-env PYTHONUNBUFFERED = 1
+env PYTHONDONTWRITEBYTECODE=1
+env PYTHONUNBUFFERED=1
 copy requirements.txt . 
 run pip install --no-cache-dir -r requirements.txt
 copy . . 

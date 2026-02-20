@@ -1,0 +1,143 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: goal_manager_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: goal_manager_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: goal_manager_ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: goal_manager_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      MCP_HOST: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  mcp_websearch:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: goal_manager_mcp_websearch
+    command: ["python", "agents/mcp_servers/websearch_mcp.py"]
+    ports:
+      - "8001:8001"
+    environment:
+      MCP_HOST: 0.0.0.0
+      PYTHONPATH: /app
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  mcp_database:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: goal_manager_mcp_database
+    command: ["python", "agents/mcp_servers/database_mcp.py"]
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql://user:password@postgres:5432/database
+      MCP_HOST: 0.0.0.0
+      PYTHONPATH: /app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  mcp_redis:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: goal_manager_mcp_redis
+    command: ["python", "agents/mcp_servers/redis_mcp.py"]
+    ports:
+      - "8003:8003"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MCP_HOST: 0.0.0.0
+      PYTHONPATH: /app
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: goal_manager_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:

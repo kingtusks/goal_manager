@@ -144,7 +144,7 @@ async def get_goals_from_id(goal_id: int, db: Session = Depends(get_db)):
         return cached
     db_goal = db.query(models.GoalsTable).filter(models.GoalsTable.id == goal_id).first()
     if db_goal:
-        goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goals]
+        goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goal]
         await RedisCache.set(f"goal:{goal_id}", goals_dict, expiry=300)
         return db_goal
     raise HTTPException(status_code=404, detail=f"No goals found with id: {goal_id}") 
@@ -351,8 +351,6 @@ async def replan(task_id: int, db: Session = Depends(get_db)):
         output_text=decision
     ))
 
-    #need to fix replanner later (maybe parse for the json only)
-    
     action = decision["action"]
 
     if action == "keep":

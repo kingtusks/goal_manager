@@ -7,10 +7,10 @@ import os
 import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-sys.path.insert(0, project_root) #had to do this stupid shit cus python wouldnt know where backend is
+backend_dir = os.path.dirname(os.path.dirname(current_dir))
+sys.path.insert(0, backend_dir)
 
-from backend.models import GoalsTable, TasksTable, AgentOutputsTable
+from models import GoalsTable, TasksTable, AgentOutputsTable #type: ignore
 
 #port 8002
 
@@ -82,7 +82,7 @@ async def get_all_goals(limit: int = 20):
 @mcp.tool()
 async def get_goal_details(goal_id: int):
     async with await get_session() as session:
-        stmt = select(GoalsTable).where(GoalTable.id == goal_id)
+        stmt = select(GoalsTable).where(GoalTable.id == goal_id) #type: ignore
         result = await session.execute(stmt)
         goal = result.scalar_one_or_none()
 
