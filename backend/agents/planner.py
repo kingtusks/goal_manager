@@ -59,7 +59,7 @@ async def makePlan(goal: str, status: bool = True):
         "content": f"{retry}{raw_prompt.replace("{{GOAL}}", goal)}"
     }]
 
-    response = await AsyncClient().chat(
+    response = await AsyncClient(host="http://ollama:11434").chat(
         model=config("OLLAMA_MODEL"),
         messages=messages,
         tools=[{k: v for k, v in tool.items() if k != "_service"} for tool in all_tools]
@@ -93,7 +93,7 @@ async def makePlan(goal: str, status: bool = True):
                 "role": "tool",
                 "content": json.dumps(content)
             })
-        final_response = await AsyncClient().chat(
+        final_response = await AsyncClient(host="http://ollama:11434").chat(
             model=config("OLLAMA_MODEL"),
             messages=messages,
             tools=[{k: v for k, v in tool.items() if k != "_service"} for tool in all_tools]

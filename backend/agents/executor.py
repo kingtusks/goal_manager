@@ -39,7 +39,7 @@ async def executeTask(task: str):
                 "content": raw_prompt.replace("{{TASK}}", task)
             }]
 
-            response = await AsyncClient().chat(
+            response = await AsyncClient(host="http://ollama:11434").chat(
                 model=config("OLLAMA_MODEL"),
                 messages=messages,
                 tools=tools
@@ -61,7 +61,7 @@ async def executeTask(task: str):
                         "content": json.dumps(content)
                     })
 
-                final = await AsyncClient().chat(
+                final = await AsyncClient(host="http://ollama:11434").chat(
                     model=config("OLLAMA_MODEL"),
                     messages=messages,
                     tools=tools

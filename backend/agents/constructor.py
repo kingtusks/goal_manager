@@ -12,7 +12,7 @@ async def constructMaterial(executor_output: str):
     with open(prompt_path, "r") as f:
         raw_prompt = f.read()
 
-    response = await AsyncClient().chat(
+    response = await AsyncClient(host="http://ollama:11434").chat(
         model=config("OLLAMA_MODEL"),
         messages=[{
             "role": "user",

@@ -57,7 +57,7 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
             .replace("{{NEXT_TASK}}", nextTask)
     }]
 
-    response = await AsyncClient().chat(
+    response = await AsyncClient(host="http://ollama:11434").chat(
         model=config("OLLAMA_MODEL"),
         messages=messages,
         tools=[{k: v for k, v in tool.items() if k != "_service"} for tool in all_tools]
@@ -91,7 +91,7 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
                 "role": "tool",
                 "content": json.dumps(content)
             })
-        final_response = await AsyncClient().chat(
+        final_response = await AsyncClient(host="http://ollama:11434").chat(
             model=config("OLLAMA_MODEL"),
             messages=messages,
             tools=[{k: v for k, v in tool.items() if k != "_service"} for tool in all_tools]
