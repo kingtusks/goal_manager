@@ -6,8 +6,8 @@ from decouple import config
 from ollama import AsyncClient
 
 mcp_links = {
-    "database": "http://localhost:8002/sse",
-    "redis": "http://localhost:8003/sse"
+    "database": "http://mcp_database:8002/sse",
+    "redis": "http://mcp_redis:8003/sse"
 }
 
 async def reflectOutput(task_output: str):
