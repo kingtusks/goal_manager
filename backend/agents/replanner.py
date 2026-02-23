@@ -5,8 +5,8 @@ from mcp import ClientSession
 import json
 import os
 
-#uses adjacent tasks + reflection as context to fix tasks (adds adaptability ig)
-#i am an idiot and didnt do the {{}} tags in the system prompt
+# uses adjacent tasks + reflection as context to fix tasks (adds adaptability ig)
+# i am an idiot and didnt do the {{}} tags in the system prompt
 
 mcp_links = {
     "websearch": "http://localhost:8001/sse",
@@ -14,10 +14,11 @@ mcp_links = {
     "redis": "http://localhost:8003/sse"
 }
 
+
 async def replanTask(lastTask: str, reflection: str, nextTask: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "replanner.txt")
-    
+
     with open(prompt_path, "r") as f:
         raw_prompt = f.read()
 
@@ -31,7 +32,7 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
                 await session.initialize()
                 tools_result = await session.list_tools()
                 print(f"{service_name} has {len(tools_result.tools)} tools")
-                
+
                 sessions[service_name] = session
 
                 for tool in tools_result.tools:
@@ -42,19 +43,19 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
                             "description": tool.description,
                             "parameters": tool.inputSchema
                         },
-                        "_service": service_name  
+                        "_service": service_name
                     })
         except Exception as e:
             print(f"cant connect to {service_name}: {e}")
 
     print(f"tools available: {len(all_tools)}")
-    
+
     messages = [{
         "role": "user",
         "content": raw_prompt
-            .replace("{{REFLECTION}}", reflection)
-            .replace("{{LAST_TASK}}", lastTask)
-            .replace("{{NEXT_TASK}}", nextTask)
+        .replace("{{REFLECTION}}", reflection)
+        .replace("{{LAST_TASK}}", lastTask)
+        .replace("{{NEXT_TASK}}", nextTask)
     }]
 
     response = await AsyncClient(host="http://ollama:11434").chat(
@@ -70,7 +71,7 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
         for tool_call in response["message"]["tool_calls"]:
             tool_name = tool_call["function"]["name"]
             tool_args = tool_call["function"]["arguments"]
-            
+
             service_name = next(
                 (t["_service"] for t in all_tools if t["function"]["name"] == tool_name),
                 None
@@ -79,14 +80,14 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
             if not service_name or service_name not in sessions:
                 print(f"tool {tool_name} not found")
                 continue
-            
+
             print(f"calling {tool_name} ({service_name})")
 
             session = sessions[service_name]
             tool_result = await session.call_tool(tool_name, tool_args)
-            
+
             content = [item.model_dump() for item in tool_result.content]
-            
+
             messages.append({
                 "role": "tool",
                 "content": json.dumps(content)
@@ -96,13 +97,11 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
             messages=messages,
             tools=[{k: v for k, v in tool.items() if k != "_service"} for tool in all_tools]
         )
-            
+
         result = final_response['message']['content']
     else:
         print("no tools needed")
         result = response['message']['content']
-
-
 
     template = {
         "action": "keep",
@@ -116,7 +115,7 @@ async def replanTask(lastTask: str, reflection: str, nextTask: str):
     except ValueError:
         jsonObj = template
         print("error with planner: no list made")
-    
+
     print(jsonObj)
     template.update(jsonObj)
     print(template)

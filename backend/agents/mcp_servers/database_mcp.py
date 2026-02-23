@@ -82,7 +82,7 @@ async def get_all_goals(limit: int = 20):
 @mcp.tool()
 async def get_goal_details(goal_id: int):
     async with await get_session() as session:
-        stmt = select(GoalsTable).where(GoalTable.id == goal_id) #type: ignore
+        stmt = select(GoalsTable).where(GoalsTable.id == goal_id)
         result = await session.execute(stmt)
         goal = result.scalar_one_or_none()
 

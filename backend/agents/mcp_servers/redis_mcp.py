@@ -66,7 +66,7 @@ async def get_cached_plan(goal_id: int):
 @mcp.tool()
 async def get_task_execution(task_id: int):
     r = await get_redis()
-    cached = await r.get("execution:task:{task_id}")
+    cached = await r.get(f"execution:task:{task_id}")
 
     if cached:
         try:
