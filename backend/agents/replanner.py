@@ -9,9 +9,9 @@ import os
 # i am an idiot and didnt do the {{}} tags in the system prompt
 
 mcp_links = {
-    "websearch": "http://localhost:8001/sse",
-    "database": "http://localhost:8002/sse",
-    "redis": "http://localhost:8003/sse"
+    "websearch": "http://mcp_websearch:8001/sse",
+    "database": "http://mcp_database:8002/sse",
+    "redis": "http://mcp_redis:8003/sse"
 }
 
 

@@ -40,14 +40,12 @@ async def executeTask(task: str):
                     "content": raw_prompt.replace("{{TASK}}", task)
                 }]
 
-                try:
-                    response = await AsyncClient(host="http://ollama:11434").chat(
-                        model=config("OLLAMA_MODEL"),
-                        messages=messages,
-                        tools=tools
-                    )
-                except Exception as ollama_error:
-                    raise ConnectionError(f"Cannot connect to Ollama at http://ollama:11434 - Is Ollama running? Error: {str(ollama_error)}")
+    
+                response = await AsyncClient(host="http://ollama:11434").chat(
+                    model=config("OLLAMA_MODEL"),
+                    messages=messages,
+                    tools=tools
+                )
 
                 if response["message"].get("tool_calls"):
                     print(f"{config("OLLAMA_MODEL")} wants to use {len(response['message']['tool_calls'])} tool(s)")
@@ -65,14 +63,12 @@ async def executeTask(task: str):
                             "content": json.dumps(content)
                         })
 
-                    try:
-                        final = await AsyncClient(host="http://ollama:11434").chat(
-                            model=config("OLLAMA_MODEL"),
-                            messages=messages,
-                            tools=tools
-                        )
-                    except Exception as ollama_error:
-                        raise ConnectionError(f"Cannot connect to Ollama at http://ollama:11434 - Is Ollama running? Error: {str(ollama_error)}")
+     
+                    final = await AsyncClient(host="http://ollama:11434").chat(
+                        model=config("OLLAMA_MODEL"),
+                        messages=messages,
+                        tools=tools
+                    )
 
                     return final["message"]["content"]
                 else:
