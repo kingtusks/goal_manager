@@ -15,7 +15,6 @@ mcp_links = {
 }
 
 async def makePlan(goal: str, status: bool = True):
-    print(f"[PLANNER] Starting makePlan for goal: {goal[:50]}...")
     retry = ""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "planner.txt")
@@ -31,10 +30,8 @@ async def makePlan(goal: str, status: bool = True):
     sessions = {}
     connections = {}
 
-    print("[PLANNER] Connecting to MCP services...")
     for service_name, service_url in mcp_links.items():
         try:
-            print(f"[PLANNER] Connecting to {service_name}...")
             read_write = sse_client(service_url)
             read, write = await read_write.__aenter__()
             connections[service_name] = read_write
@@ -42,7 +39,6 @@ async def makePlan(goal: str, status: bool = True):
             session = ClientSession(read, write)
             await session.initialize()
             tools_result = await session.list_tools()
-            print(f"[PLANNER] {service_name} has {len(tools_result.tools)} tools")
 
             sessions[service_name] = session
 
@@ -60,20 +56,17 @@ async def makePlan(goal: str, status: bool = True):
             print(f"cant connect to {service_name}: {e}")
 
     try:
-        print(f"[PLANNER] tools available: {len(all_tools)}")
 
         messages = [{
             "role": "user",
             "content": f"{retry}{raw_prompt.replace("{{GOAL}}", goal)}"
         }]
 
-        print("[PLANNER] Calling Ollama for initial response...")
         response = await AsyncClient(host="http://ollama:11434").chat(
             model=config("OLLAMA_MODEL"),
             messages=messages,
             tools=[{k: v for k, v in tool.items() if k != "_service"} for tool in all_tools]
         )
-        print("[PLANNER] Got response from Ollama")
 
         if response["message"].get("tool_calls"):
             print(f"planner wants to use {len(response['message']['tool_calls'])} tool(s)")
