@@ -19,7 +19,7 @@ mcp = FastMCP("Database Search")
 engine = None
 AsyncSessionLocal = None
 
-async def get_session():
+async def init_db():
     global engine, AsyncSessionLocal
     if not engine:
         db_url = config("DATABASE_URL").replace("postgresql://", "postgresql+asyncpg://")
@@ -30,18 +30,17 @@ async def get_session():
             pool_size=10,
             max_overflow=20
         )
-        
+
         AsyncSessionLocal = async_sessionmaker(
             engine,
             class_=AsyncSession,
             expire_on_commit=False
         )
 
-        return AsyncSessionLocal()
-
 @mcp.tool()
 async def search_goals(query: str, limit: int = 10):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt = select(GoalsTable).where(
             GoalsTable.goal.ilike(f"%{query}%")
         ).order_by(GoalsTable.created_at.desc()).limit(limit)
@@ -62,7 +61,8 @@ async def search_goals(query: str, limit: int = 10):
 
 @mcp.tool()
 async def get_all_goals(limit: int = 20):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt = select(GoalsTable).order_by(
             GoalsTable.created_at.desc()
         ).limit(limit)
@@ -81,7 +81,8 @@ async def get_all_goals(limit: int = 20):
 
 @mcp.tool()
 async def get_goal_details(goal_id: int):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt = select(GoalsTable).where(GoalsTable.id == goal_id)
         result = await session.execute(stmt)
         goal = result.scalar_one_or_none()
@@ -97,7 +98,8 @@ async def get_goal_details(goal_id: int):
 
 @mcp.tool()
 async def get_tasks_for_goal(goal_id: int, status: Optional[str] = None):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt =  select(TasksTable).where(TasksTable.goal_id == goal_id)
         if status:
             stmt = stmt.where(TasksTable.status == status)
@@ -123,7 +125,8 @@ async def get_tasks_for_goal(goal_id: int, status: Optional[str] = None):
 
 @mcp.tool()
 async def search_tasks(query: str, status: Optional[str] = None, limit: int = 10):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt = select(TasksTable).where(
             TasksTable.description.ilike(f"%{query}%")
         )
@@ -148,7 +151,8 @@ async def search_tasks(query: str, status: Optional[str] = None, limit: int = 10
 
 @mcp.tool()
 async def get_all_tasks(status: Optional[str] = None, limit: int = 20):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt = select(TasksTable)
         if status:
             stmt.where(TasksTable.status == status)
@@ -170,7 +174,8 @@ async def get_all_tasks(status: Optional[str] = None, limit: int = 20):
 
 @mcp.tool()
 async def get_goal_with_tasks(goal_id: int):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         goal_stmt = select(GoalsTable).where(GoalsTable.id == goal_id)
         goal_result = await session.execute(goal_stmt)
         goal = goal_result.scalar_one_or_none()
@@ -209,7 +214,8 @@ async def get_goal_with_tasks(goal_id: int):
     
 @mcp.tool()
 async def get_task_stats():
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stats_stmt = select(
             func.count(TasksTable.id).label("total_tasks"),
             func.count(TasksTable.id).filter(TasksTable.status == "completed").label("completed"),
@@ -231,7 +237,8 @@ async def get_task_stats():
 
 @mcp.tool()
 async def get_agent_outputs(task_id: int, agent_type: Optional[str] = None):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt = select(AgentOutputsTable).where(
             AgentOutputsTable.task_id == task_id
         )
@@ -255,7 +262,8 @@ async def get_agent_outputs(task_id: int, agent_type: Optional[str] = None):
 
 @mcp.tool()
 async def get_recent_agent_outputs(agent_type: Optional[str] = None, limit: int = 10):
-    async with await get_session() as session:
+    await init_db()
+    async with AsyncSessionLocal() as session:
         stmt = select(AgentOutputsTable)
         
         if agent_type:
