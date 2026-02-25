@@ -1,12 +1,54 @@
 #task -> quiz (score in frontend)
-from mcp.client.sse import sse_client
-from mcp import ClientSession
-from ollama import AsyncClient
-from decouple import config
+#add a "code sandbox so we get accurate code (for coding stuff)"
+
 import os
 import json
+from ollama import AsyncClient
+from decouple import config
+from mcp.client.sse import sse_client
+from mcp import ClientSession
 
-#add a "code sandbox so we get accurate code (for coding stuff)"
+mcp_links = {
+    "websearch": "http://mcp_websearch:8001/sse",
+}
+
+async def collect_tools():
+    all_tools = []
+
+    for service_name, service_url in mcp_links.items():
+        try:
+            async with sse_client(service_url) as (read, write):
+                async with ClientSession(read, write) as session:
+                    await session.initialize()
+                    tools_result = await session.list_tools()
+
+                    for tool in tools_result.tools:
+                        all_tools.append({
+                            "type": "function",
+                            "function": {
+                                "name": tool.name,
+                                "description": tool.description,
+                                "parameters": tool.inputSchema
+                            },
+                            "_service": service_name,
+                            "_url": service_url
+                        })
+
+                    print(f"got {len(tools_result.tools)} tools from {service_name}")
+        except Exception as e:
+            print(f"cant connect to {service_name}: {e}")
+
+    return all_tools
+
+
+async def call_tool(tool_meta: dict, tool_name: str, tool_args: dict):
+    async with sse_client(tool_meta["_url"]) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            result = await session.call_tool(tool_name, tool_args)
+            return [item.model_dump() for item in result.content]
+
+
 async def executeTask(task: str):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompts", "executor.txt")
@@ -15,63 +57,54 @@ async def executeTask(task: str):
         raw_prompt = f.read()
 
     try:
-        async with sse_client("http://localhost:8001/sse") as (read, write):
-            async with ClientSession(read, write) as session:
-                await session.initialize()
-                tools_result = await session.list_tools()
-                tools_data = tools_result.tools
+        all_tools = await collect_tools()
+        ollama_tools = [{k: v for k, v in tool.items() if not k.startswith("_")} for tool in all_tools]
 
-                print(f"tools: {[t.name for t in tools_data]}")
+        messages = [{
+            "role": "user",
+            "content": raw_prompt.replace("{{TASK}}", task)
+        }]
 
-                tools = [
-                    {
-                        "type": "function",
-                        "function": {
-                            "name": t.name,
-                            "description": t.description,
-                            "parameters": t.inputSchema
-                        }
-                    }
-                    for t in tools_data
-                ]
+        response = await AsyncClient(host="http://ollama:11434").chat(
+            model=config("OLLAMA_MODEL"),
+            messages=messages,
+            tools=ollama_tools
+        )
 
-                messages = [{
-                    "role": "user",
-                    "content": raw_prompt.replace("{{TASK}}", task)
-                }]
+        if response["message"].get("tool_calls"):
+            print(f"{config('OLLAMA_MODEL')} wants to use {len(response['message']['tool_calls'])} tool(s)")
+            messages.append(response["message"])
 
-    
-                response = await AsyncClient(host="http://ollama:11434").chat(
-                    model=config("OLLAMA_MODEL"),
-                    messages=messages,
-                    tools=tools
+            for tool_call in response["message"]["tool_calls"]:
+                tool_name = tool_call["function"]["name"]
+                tool_args = tool_call["function"]["arguments"]
+
+                tool_meta = next(
+                    (t for t in all_tools if t["function"]["name"] == tool_name),
+                    None
                 )
 
-                if response["message"].get("tool_calls"):
-                    print(f"{config("OLLAMA_MODEL")} wants to use {len(response['message']['tool_calls'])} tool(s)")
-                    messages.append(response["message"])
+                if not tool_meta:
+                    print(f"tool {tool_name} not found")
+                    continue
 
-                    for tool_call in response["message"]["tool_calls"]:
-                        tool_name = tool_call["function"]["name"]
-                        tool_args = tool_call["function"]["arguments"]
+                print(f"calling {tool_name} ({tool_meta['_service']})")
 
-                        tool_result = await session.call_tool(tool_name, tool_args)
-                        content = [item.model_dump() for item in tool_result.content]
+                content = await call_tool(tool_meta, tool_name, tool_args)
+                messages.append({
+                    "role": "tool",
+                    "content": json.dumps(content)
+                })
 
-                        messages.append({
-                            "role": "tool",
-                            "content": json.dumps(content)
-                        })
+            final = await AsyncClient(host="http://ollama:11434").chat(
+                model=config("OLLAMA_MODEL"),
+                messages=messages,
+                tools=ollama_tools
+            )
+            return final["message"]["content"]
+        else:
+            return response["message"]["content"]
 
-     
-                    final = await AsyncClient(host="http://ollama:11434").chat(
-                        model=config("OLLAMA_MODEL"),
-                        messages=messages,
-                        tools=tools
-                    )
-
-                    return final["message"]["content"]
-                else:
-                    return response['message']['content']
     except Exception as e:
         print(f"error with executor: {e}")
+        raise
