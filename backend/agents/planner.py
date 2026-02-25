@@ -1,5 +1,5 @@
 #goal -> plan List[tasks: str]
-
+#planner -> executor -> constructor -> human input -> reflector -> replanner
 import os
 import json
 from ollama import AsyncClient
