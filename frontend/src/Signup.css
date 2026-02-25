@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+:root {
+    --bg-color: #22223B;
+    --font: "Ubuntu";
+    --text-color: #f7f9f9;
+    --button-color: #f80257;
+    --hover-button-color: #e00552;
+    --hover-button-color2: #cecece;
+    --input-color: #3f4045;
+    --input-focus-color: #55575d;
+}
+
+.signupBlock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  font-family: var(--font);
+  padding: 2rem;
+}
+
+.authWrapper {
+  width: 100%;
+  max-width: 450px;
+}
+
+.authHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.logoAuth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.logoAuth h1 {
+  color: var(--text-color);
+  font-weight: 500;
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.anchorIconAuth {
+  font-size: 2.5rem;
+  color: var(--text-color);
+}
+
+.tagline {
+  color: var(--text-color);
+  opacity: 0.7;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.authContainer {
+  background-color: var(--input-color);
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid var(--input-focus-color);
+}
+
+.authTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  background-color: var(--bg-color);
+  padding: 0.3rem;
+  border-radius: 10px;
+}
+
+.authTab {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  background: none;
+  color: var(--text-color);
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.authTab:hover {
+  opacity: 0.8;
+}
+
+.authTab.active {
+  background-color: var(--input-color);
+  opacity: 1;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.inputGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  font-size: 1rem;
+  z-index: 1;
+}
+
+.eyeIcon {
+  position: absolute;
+  right: 1rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  z-index: 1;
+}
+
+.eyeIcon:hover {
+  opacity: 1;
+}
+
+.authInput {
+  width: 100%;
+  padding: 1rem 3rem 1rem 3rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font);
+  transition: all 0.2s ease;
+}
+
+.authInput:focus {
+  outline: none;
+  background-color: var(--input-focus-color);
+}
+
+.authInput::placeholder {
+  color: var(--text-color);
+  opacity: 0.5;
+}
+
+.error {
+  color: var(--button-color);
+  font-size: 0.875rem;
+  margin: 0;
+  text-align: center;
+  padding: 0.5rem;
+  background-color: color-mix(in srgb, var(--button-color) 10%, transparent);
+  border-radius: 8px;
+}
+
+.authButton {
+  padding: 1rem;
+  background-color: var(--button-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.authButton:hover:not(:disabled) {
+  background-color: var(--hover-button-color);
+  transform: translateY(-1px);
+}
+
+.authButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.authButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .signupBlock {
+    padding: 1rem;
+  }
+
+  .authHeader {
+    margin-bottom: 2rem;
+  }
+
+  .logoAuth h1 {
+    font-size: 2rem;
+  }
+
+  .anchorIconAuth {
+    font-size: 2rem;
+  }
+
+  .authContainer {
+    padding: 1.5rem;
+  }
+}

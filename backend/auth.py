@@ -9,13 +9,13 @@ class PasswordManager:
         return pwd_context.hash(password)
     
     @staticmethod
-    def check_password(password: str, hashed_password: str):
+    def verify_password(password: str, hashed_password: str):
         try:
             pwd_context.verify(password, hashed_password)
             return True
         except:
             return False
-    
+
     @staticmethod
-    def checkRehash(hashed_password: str):
+    def needs_rehash(hashed_password: str):
         return pwd_context.needs_rehash(hashed_password)

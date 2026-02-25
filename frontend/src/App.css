@@ -8,7 +8,7 @@
     --hover-button-color: #e00552;
     --hover-button-color2: #cecece;
     --input-color: #3f4045;
-    --input-focus-color: #55575d;   
+    --input-focus-color: #55575d;
 }
 
 h1 {
@@ -160,4 +160,19 @@ h1 {
     font-weight: 500;
 }
 
+.logoutButton {
+    margin-left: auto;
+    margin-right: 10px;
+    padding: 8px 12px;
+    border: none;
+    background-color: var(--button-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.2s ease;
+}
 
+.logoutButton:hover {
+    background-color: var(--hover-button-color);
+}

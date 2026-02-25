@@ -1,35 +1,56 @@
 import { useState, useEffect } from 'react';
-import { 
-  fetchGoals, 
-  createGoal, 
-  deleteGoal, 
-  createPlanForGoal, 
-  executeNextTask, 
+import {
+  fetchGoals,
+  createGoal,
+  deleteGoal,
+  createPlanForGoal,
+  executeNextTask,
   reflectOnTask,
   replanNextTask,
   constructFromTask
 } from './api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faAnchor, faPlay, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faAnchor, faPlay, faTrash, faSpinner, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
+import Signup from './Signup';
 import './App.css';
 
 
 function App() {
+  const [user, setUser] = useState(null);
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState('');
   const [agentResult, setAgentResult] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchGoals()
-      .then(data => setGoals(data))
-      .catch(error => console.error('Error:', error));
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchGoals()
+        .then(data => setGoals(data))
+        .catch(error => console.error('Error:', error));
+    }
+  }, [user]);
+
+  const handleAuthSuccess = (userData) => {
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    setGoals([]);
+  };
 
   const addGoal = () => {
     if (!newGoal.trim()) return;
-    
-    createGoal(newGoal)
+
+    createGoal(newGoal, user.user_id)
       .then(() => {
         setNewGoal('');
         return fetchGoals();
@@ -89,12 +110,19 @@ function App() {
     }
   };
 
+  if (!user) {
+    return <Signup onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
     <div className='container'>
       <div className='leftAlign'>
         <div className='hAlign logo'>
           <FontAwesomeIcon icon={faAnchor} className='anchorIcon'/>
           <p>anchor</p>
+          <button onClick={handleLogout} className='logoutButton' title='Logout'>
+            <FontAwesomeIcon icon={faSignOutAlt} />
+          </button>
         </div>
         <div className='goalListContainer'>
         {goals.length > 0 && goals

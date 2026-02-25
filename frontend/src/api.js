@@ -9,12 +9,12 @@ export const fetchGoals = async () => {
   return response.json();
 };
 
-export const createGoal = async (goal) => {
+export const createGoal = async (goal, userId) => {
   const response = await fetch(`${API_URL}/creategoal`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      user_id: 1,  
+    body: JSON.stringify({
+      user_id: userId,
       goal
     })
   });
