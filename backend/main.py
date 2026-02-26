@@ -122,15 +122,15 @@ async def get_all_goals(db: Session = Depends(get_db)):
     return goals_dict 
 
 @app.get("/goal/user/{user_id}") #r
-async def get_goals_from_userid(user_id: int, db: Session = Depends(get_db)):  
+async def get_goals_from_userid(user_id: int, db: Session = Depends(get_db)):
     cached = await RedisCache.get(f"goals:user:{user_id}")
     if cached:
         return cached
-    db_goals = db.query(models.GoalsTable).filter(models.GoalsTable.user_id == user_id).all()  
+    db_goals = db.query(models.GoalsTable).filter(models.GoalsTable.user_id == user_id).all()
     if db_goals:
         goals_dict = [models.GoalsPydantic.from_orm(i).dict() for i in db_goals]
         await RedisCache.set(f"goals:user:{user_id}", goals_dict, expiry=300)
-        return db_goals
+        return goals_dict
     raise HTTPException(status_code=404, detail=f"No goals found for user id: {user_id}")
 
 @app.get("/goal/{goal_id}") #r
@@ -154,18 +154,19 @@ async def make_goal(goal: models.GoalsPydantic, db: Session = Depends(get_db)):
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)
-    await RedisCache.delete("goals:all") #this is so the next r gets updated data
-    #await RedisCache.delete(f"goals:user:{goal.user_id}") #this too lol
+    await RedisCache.delete("goals:all")
+    await RedisCache.delete(f"goals:user:{goal.user_id}")
     return db_goal
 
 @app.delete("/deletegoal") #d
 async def delete_goal(id: int, db: Session = Depends(get_db)):
     db_goal = db.query(models.GoalsTable).filter(models.GoalsTable.id == id).first()
     if db_goal:
+        user_id = db_goal.user_id
         db.delete(db_goal)
         db.commit()
         await RedisCache.delete("goals:all")
-        #await RedisCache.delete(f"goals:user:{user_id}")
+        await RedisCache.delete(f"goals:user:{user_id}")
         await RedisCache.delete(f"goal:{id}")
         return {"id of goal deleted": id}
     raise HTTPException(status_code=404, detail=f"No goals found with id: {id}")  

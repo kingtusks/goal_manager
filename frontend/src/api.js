@@ -1,7 +1,7 @@
 const API_URL = "http://localhost:8000"; //put this in .env later (im js lazy)
 
-export const fetchGoals = async () => {
-  const response = await fetch(`${API_URL}/goals`);
+export const fetchGoals = async (userId) => {
+  const response = await fetch(`${API_URL}/goal/user/${userId}`);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.detail || "Request failed");

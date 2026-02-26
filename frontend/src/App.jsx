@@ -31,7 +31,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      fetchGoals()
+      fetchGoals(user.user_id)
         .then(data => setGoals(data))
         .catch(error => console.error('Error:', error));
     }
@@ -53,7 +53,7 @@ function App() {
     createGoal(newGoal, user.user_id)
       .then(() => {
         setNewGoal('');
-        return fetchGoals();
+        return fetchGoals(user.user_id);
       })
       .then(data => setGoals(data))
       .catch(error => console.error('Error:', error));
@@ -61,7 +61,7 @@ function App() {
 
   const handleDelete = (id) => {
     deleteGoal(id)
-      .then(() => fetchGoals())
+      .then(() => fetchGoals(user.user_id))
       .then(data => setGoals(data))
       .catch(error => console.error('Error:', error));
   };
