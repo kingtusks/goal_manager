@@ -9,6 +9,7 @@
     --hover-button-color2: #cecece;
     --input-color: #3f4045;
     --input-focus-color: #55575d;
+    --navy-blue: #001f3f;
 }
 
 .signupBlock {
@@ -168,8 +169,8 @@
 
 .authButton {
   padding: 1rem;
-  background-color: var(--button-color);
-  color: var(--text-color);
+  background-color: white;
+  color: var(--navy-blue);
   border: none;
   border-radius: 10px;
   font-size: 1rem;
@@ -181,7 +182,7 @@
 }
 
 .authButton:hover:not(:disabled) {
-  background-color: var(--hover-button-color);
+  background-color: #e6e6e6;
   transform: translateY(-1px);
 }
 

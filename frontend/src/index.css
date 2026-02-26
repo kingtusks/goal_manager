@@ -1,16 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 
-:root {
-    --bg-color: #22223B;
-    --font: "Ubuntu";
-    --text-color: #f7f9f9;
-    --button-color: #f80257;
-    --hover-button-color: #e00552;
-    --hover-button-color2: #cecece;
-    --input-color: #3f4045;
-    --input-focus-color: #55575d;
-}
-
 * {
     margin: 0;
     padding: 0;

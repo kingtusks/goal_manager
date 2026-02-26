@@ -1,8 +1,6 @@
 from pwdlib import PasswordHash
-from pwdlib.hashers.argon2 import Argon2Hasher
 
-pwd_context = PasswordHash((Argon2Hasher(),))
-
+pwd_context = PasswordHash.recommended()
 class PasswordManager:
     @staticmethod
     def hash_password(password: str):
@@ -11,11 +9,8 @@ class PasswordManager:
     @staticmethod
     def verify_password(password: str, hashed_password: str):
         try:
-            pwd_context.verify(password, hashed_password)
-            return True
-        except:
+            return pwd_context.verify(password, hashed_password)
+        except Exception as e:
+            print(f"verification failed: {e}")
             return False
 
-    @staticmethod
-    def needs_rehash(hashed_password: str):
-        return pwd_context.needs_rehash(hashed_password)
