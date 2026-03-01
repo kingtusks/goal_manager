@@ -20,7 +20,7 @@ class UserTable(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String(20), unique=True, nullable=False)
     email = Column(String, nullable=False)
-    password = Column(String, nullable=False)  # hash later
+    password = Column(String, nullable=False)
     
 class GoalsPydantic(BaseModel):
     id: Optional[int] = None

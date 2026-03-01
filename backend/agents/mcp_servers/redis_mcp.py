@@ -17,25 +17,6 @@ async def get_redis():
         )
     return client
     
-'''
-@mcp.tool()
-async def get_cached_goals(user_id: Optional[int] = None):
-    if user_id:
-        key = f"goals:user:{user_id}"
-    else:
-        key: f"goals:all"
-    
-    r = await get_redis()
-    cached = await r.get(key)
-
-    if cached:
-        try:
-            return json.loads(cached)
-        except:
-            return {"raw": cached.decode() if isinstance(cached, bytes) else cached}
-    
-    return None
-'''
 
 @mcp.tool()
 async def get_cached_goals(goal_id: int):
