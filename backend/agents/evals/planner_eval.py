@@ -12,7 +12,7 @@ from ollama import AsyncClient
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from planner import makePlan
+from planner import makePlan #type: ignore
 
 test_goals = [
     "Learn Python programming from scratch",
@@ -25,20 +25,27 @@ test_goals = [
     "Learn Spanish to conversational level",
 ]
 
-async def plannerEval(goal):
-    score = 10;
+async def plannerEval(goal: str):
     prompt_path = os.path.join(current_dir, "prompts", "planner.txt")
+
+    template = {
+        "passed": False,
+        "reason": "",
+        "agent_output": [""]
+    }
 
     plannerResult = await makePlan(goal)
 
     if type(plannerResult) is not list:
-        score -= 3
+        template["reason"] = "planner returned non-list"
+        return template
     else:
         if len(plannerResult) <= 2 or len(plannerResult) >= 15:
-            score -= 3
+            template["reason"] = "planner returned too many or too little tasks"
+            return template
 
     with open(prompt_path, "r", encoding="utf-8") as f:
-        raw_prompt = f.read()
+            raw_prompt = f.read()
     
     messages = [{
         "role": "user",
@@ -57,28 +64,22 @@ async def plannerEval(goal):
 
     print(result)
 
-    template = {
-        "deductions": "0",
-        "final_score": "0",
-        "reason": "none"
-    }
-
     try:
-        jsonObj = json.loads(result[result.index("{") + 1: result.index("}")])
+        jsonObj = json.loads(result[result.index("{"):result.rindex("}") + 1])
     except ValueError:
         jsonObj = template
         print("error with planner eval: no json made")
 
     template.update(jsonObj)
-    #print(template)
+    print(template)
 
+    template["agent_output"] = plannerResult
     return template
 
-if __name__ == "__main__":
-    async def main():
-        for goal in test_goals:
-            print(f"goal: {goal}")
-            result = await plannerEval(goal)
-            print(f"result: {result}")
-    
-    asyncio.run(main())
+async def main():
+    for goal in test_goals:
+        print(f"goal: {goal}")
+        result = await plannerEval(goal)
+        print(f"result: {result}")
+
+asyncio.run(main())

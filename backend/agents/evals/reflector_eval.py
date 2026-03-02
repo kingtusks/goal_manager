@@ -7,17 +7,16 @@ from ollama import AsyncClient
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from reflector import reflectOutput
+from reflector import reflectOutput #type: ignore
 
 test_outputs = [
-    ["", ""]
+    ["", ""] #executor_output, score
 ]
 
-async def reflectorEval(output_list):
-    score = 10;
+async def reflectorEval(output):
     prompt_path = os.path.join(current_dir, "prompts", "reflector.txt")
 
-    reflectorResult = await reflectOutput(output_list[0])
+    reflectorResult = await reflectOutput(output[0])
 
     with open(prompt_path, "r", encoding="utf-8") as f:
         raw_prompt = f.read()
@@ -25,7 +24,8 @@ async def reflectorEval(output_list):
     messages = [{
         "role": "user",
         "content": raw_prompt
-            .replace("{{TASK}}", task)
+            .replace("{{TASK}}", output[0])
+            .replace("{{SCORE}}", output[1])
             .replace("{{REFLECTOR_OUTPUT}}", "\n".join(reflectorResult) if isinstance(reflectorResult, list) else str(reflectorResult))
     }]
 
@@ -45,20 +45,20 @@ async def reflectorEval(output_list):
     }
 
     try:
-        jsonObj = json.loads(result[result.index("{") + 1: result.index("}")])
+        jsonObj = json.loads(result[result.index("{"):result.rindex("}") + 1])
     except ValueError:
         jsonObj = template
         print("error with reflector eval: no json made")
 
     template.update(jsonObj)
+    template["agent_output"] = reflectorResult
 
     return template
 
-if __name__ == "__main__":
-    async def main():
-        for output in test_outputs:
-            print(f"output: {output}")
-            result = await reflectorEval(output)
-            print(f"result: {result}")
-    
-    asyncio.run(main())
+async def main():
+    for output in test_outputs:
+        print(f"output: {output}")
+        result = await reflectorEval(output)
+        print(f"result: {result}")
+
+asyncio.run(main())

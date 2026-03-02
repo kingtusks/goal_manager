@@ -7,19 +7,19 @@ Goal: {{GOAL}}
 Planner Output:
 {{PLANNER_OUTPUT}}
 
-Current Score: {{SCORE}}/10 (points may have already been deducted for structural issues like wrong output type or bad step count)
+The plan has already been checked for structural issues (type and step count). Your job is to evaluate the quality of the content.
 
-Evaluate the plan and deduct points for any of the following issues:
-- Steps are not relevant to the goal (-2)
-- Steps are vague or not actionable (-1)
-- Steps are in an illogical order (-1)
-- Steps contain duplicates or unnecessary repetition (-1)
-- The plan would not actually achieve the goal if followed (-2)
+Fail the plan (passed: false) if ANY of the following are true:
+- The steps are not relevant to the goal
+- The steps are so vague they are not actionable
+- The steps are in an illogical order that would make the plan hard to follow
+- The plan would not actually achieve the goal if followed completely
+
+Pass the plan (passed: true) if the steps are relevant, logical, and would reasonably achieve the goal.
 
 Respond ONLY with a JSON object. No explanation outside the JSON.
 
 {
-  "deductions": <total points to deduct, 0 if the plan is good>,
-  "final_score": <{{SCORE}} minus deductions, minimum 0>,
+  "passed": <true or false>,
   "reason": "<one sentence explaining the main issue, or 'looks good' if no issues>"
 }

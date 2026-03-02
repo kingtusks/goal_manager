@@ -7,15 +7,21 @@ from ollama import AsyncClient
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from executor import executeTask
+from executor import executeTask #type: ignore
 
 test_tasks = [
     "",
 ]
 
 async def executorEval(task):
-    score = 10;
     prompt_path = os.path.join(current_dir, "prompts", "executor.txt")
+
+    template = {
+        "passed": False,
+        "reason": "",
+        "agent_output": ""
+    }
+
 
     executorResult = await executeTask(task)
 
@@ -38,27 +44,21 @@ async def executorEval(task):
 
     print(result)
 
-    template = {
-        "deductions": "0",
-        "final_score": "0",
-        "reason": "none"
-    }
-
     try:
-        jsonObj = json.loads(result[result.index("{") + 1: result.index("}")])
+        jsonObj = json.loads(result[result.index("{"):result.rindex("}") + 1])
     except ValueError:
         jsonObj = template
         print("error with executor eval: no json made")
 
     template.update(jsonObj)
-
+    
+    template["agent_output"] = executorResult
     return template
 
-if __name__ == "__main__":
-    async def main():
-        for task in test_tasks:
-            print(f"task: {task}")
-            result = await executorEval(task)
-            print(f"result: {result}")
-    
-    asyncio.run(main())
+async def main():
+    for task in test_tasks:
+        print(f"task: {task}")
+        result = await executorEval(task)
+        print(f"result: {result}")
+
+asyncio.run(main())
