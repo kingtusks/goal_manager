@@ -62,6 +62,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       OLLAMA_MODEL: ${OLLAMA_MODEL}
+      EVAL_MODEL: ${EVAL_MODEL}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
       MCP_HOST: 0.0.0.0

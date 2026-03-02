@@ -5,6 +5,7 @@ Does it use tools when it should vs when it shouldn't > T/F
 
 import os
 import sys
+import json
 import asyncio
 from decouple import config
 from ollama import AsyncClient
@@ -43,8 +44,8 @@ async def plannerEval(goal):
         "role": "user",
         "content": raw_prompt
             .replace("{{GOAL}}", goal)
-            .replace("{{SCORE}}", score)
-            .replace("{{PLANNER_OUTPUT}}", plannerResult)
+            .replace("{{SCORE}}", str(score))
+            .replace("{{PLANNER_OUTPUT}}", "\n".join(plannerResult) if isinstance(plannerResult, list) else str(plannerResult))
     }]
 
     response = await AsyncClient(host="http://ollama:11434").chat(
@@ -52,13 +53,32 @@ async def plannerEval(goal):
         messages=messages
     )
 
-    results = response["message"]["content"]
+    result = response["message"]["content"]
 
-    return score
+    print(result)
 
-'''
+    template = {
+        "deductions": "keep",
+        "final_score": "0",
+        "reason": "none"
+    }
+
+    try:
+        jsonObj = json.loads(result[result.index("{") + 1: result.index("}")])
+    except ValueError:
+        jsonObj = template
+        print("error with planner eval: no json made")
+
+    template.update(jsonObj)
+    print(template)
+
+    return template
+
 if __name__ == "__main__":
-    for goal in test_goals:
-        asyncio.run(plannerEval(goal))
-'''
-
+    async def main():
+        for goal in test_goals:
+            print(f"goal: {goal}")
+            result = await plannerEval(goal)
+            print(f"result: {result}")
+    
+    asyncio.run(main())

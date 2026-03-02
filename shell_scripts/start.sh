@@ -1,4 +1,5 @@
 #!/bin/bash
+#DEPRECIATED
 
 #just for me 2>/dev/null just makes it so errors wont be visible
 redis-server --daemonize yes 2>/dev/null 

@@ -1,6 +1,6 @@
-# Goal Manager
+# Anchor
 
-Goal Manager is an AI-powered system designed to help users achieve their goals through a structured, multi-agent workflow. It breaks down complex goals into actionable tasks, executes them, reflects on the results, and adapts the plan dynamically.
+Anchor is an AI-powered system designed to help users achieve their goals through a structured, multi-agent workflow. It breaks down complex goals into actionable tasks, executes them, reflects on the results, and adapts the plan dynamically.
 
 ## Features
 

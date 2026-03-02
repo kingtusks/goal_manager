@@ -1,4 +1,5 @@
 #!/bin/bash
+#DEPRECIATED
 
 pkill -f "_mcp.py"
 pkill -f "uvicorn main:app"

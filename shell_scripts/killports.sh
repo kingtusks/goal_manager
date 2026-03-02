@@ -1,6 +1,7 @@
 #!/bin/bash
+#DEPRECIATED
 
-PORTS=(8000 8001 8002 8003 5173 11434 6379 5433)
+PORTS=(8000 8001 8002 8003 5173 11434 6379 5433)    
 
 for PORT in "${PORTS[@]}"; do
     PIDS=$(sudo fuser $PORT/tcp 2>/dev/null)
