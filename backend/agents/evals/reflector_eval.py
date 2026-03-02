@@ -16,6 +16,12 @@ test_outputs = [
 async def reflectorEval(output):
     prompt_path = os.path.join(current_dir, "prompts", "reflector.txt")
 
+    template = {
+        "passed": False,
+        "reason": "",
+        "agent_output": ""
+    }
+
     reflectorResult = await reflectOutput(output[0])
 
     with open(prompt_path, "r", encoding="utf-8") as f:
@@ -37,12 +43,6 @@ async def reflectorEval(output):
     result = response["message"]["content"]
 
     print(result)
-
-    template = {
-        "deductions": "0",
-        "final_score": "0",
-        "reason": "none"
-    }
 
     try:
         jsonObj = json.loads(result[result.index("{"):result.rindex("}") + 1])

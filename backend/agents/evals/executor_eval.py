@@ -22,7 +22,6 @@ async def executorEval(task):
         "agent_output": ""
     }
 
-
     executorResult = await executeTask(task)
 
     with open(prompt_path, "r", encoding="utf-8") as f:
