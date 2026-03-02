@@ -58,7 +58,7 @@ async def plannerEval(goal):
     print(result)
 
     template = {
-        "deductions": "keep",
+        "deductions": "0",
         "final_score": "0",
         "reason": "none"
     }
@@ -70,7 +70,7 @@ async def plannerEval(goal):
         print("error with planner eval: no json made")
 
     template.update(jsonObj)
-    print(template)
+    #print(template)
 
     return template
 

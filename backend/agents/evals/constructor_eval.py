@@ -1,0 +1,1 @@
+#i gotta stop slacking on the constructor but once i do that ill finish this
