@@ -1,6 +1,6 @@
 import asyncio
 import random
-from . import planner_eval, executor_eval, constructor_eval, reflector_eval, replanner_eval
+from .evals import planner_eval, executor_eval, constructor_eval, reflector_eval, replanner_eval
 
 test_goals = [
     "Learn Python programming from scratch",

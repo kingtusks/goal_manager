@@ -51,7 +51,6 @@ async def plannerEval(goal: str):
         "role": "user",
         "content": raw_prompt
             .replace("{{GOAL}}", goal)
-            .replace("{{SCORE}}", str(score))
             .replace("{{PLANNER_OUTPUT}}", "\n".join(plannerResult) if isinstance(plannerResult, list) else str(plannerResult))
     }]
 
