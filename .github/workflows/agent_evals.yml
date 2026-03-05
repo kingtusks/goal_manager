@@ -15,15 +15,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Start containers
+        run: docker compose up --build -d
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Wait for containers to be ready
+        run: sleep 30
 
       - name: Run evals
-        run: |
-          chmod +x shell_scripts/run_evals.sh
-          bash shell_scripts/run_evals.sh
+        run: bash shell_scripts/run_evals.sh
