@@ -11,6 +11,16 @@ jobs:
   evals:
     runs-on: ubuntu-latest
 
+    env:
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      OLLAMA_MODEL: ${{ secrets.OLLAMA_MODEL }}
+      EVAL_MODEL: ${{ secrets.EVAL_MODEL }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
