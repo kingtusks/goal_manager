@@ -61,7 +61,7 @@ async def constructMaterial(executor_output: str):
 
     messages = [{
         "role": "user",
-        "content": f"{retry}{raw_prompt.replace('{{EXECUTOR_OUTPUT}}', executor_output)}"
+        "content": f"{raw_prompt.replace('{{EXECUTOR_OUTPUT}}', executor_output)}"
     }]
 
     response = await AsyncClient(host="http://ollama:11434").chat(
@@ -108,7 +108,7 @@ async def constructMaterial(executor_output: str):
     try:
         jsonObj = json.loads(result[result.index("{"):result.rindex("}") + 1])
     except ValueError:
-        jsonObj = template
+        jsonObj = {} #stub
         print("error with constructor: no json made")
 
     return jsonObj
